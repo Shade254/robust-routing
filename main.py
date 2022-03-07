@@ -2,6 +2,7 @@ import getopt
 import sys
 
 from graph import Graph
+#to run: ../python.exe ../main.py -g "test_cases/basic.txt"
 
 if __name__ == '__main__':
     argv = sys.argv[1:]
