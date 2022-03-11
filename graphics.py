@@ -60,7 +60,7 @@ def display_marking_grid(graph, marking):
         for j in range(data.shape[1]):  # columns
             label = data[i, j] - 1
             if label == max_marking + 1:
-                label = "Inf"
+                label = "∞"
             text = ax.text(j, i, label, ha="center", va="center", color="black")
 
     plt.show()
