@@ -141,6 +141,20 @@ class Graph:
             return [map_to_get[node_id][to] for to in map_to_get[node_id]]
         return None
 
+    def get_in_edges(self, node_id, kind):
+        map_to_get = self.__get_edge_map(kind)
+
+        in_edges = []
+
+        for from_node in map_to_get.keys():
+            if node_id in map_to_get[from_node]:
+                in_edges.append(map_to_get[from_node][node_id])
+
+        if len(in_edges) == 0:
+            return None
+
+        return in_edges
+
     def get_all_edges(self, kind=None):
         all_edges = []
         if not kind or kind == EdgeClass.NORMAL:

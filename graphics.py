@@ -6,7 +6,7 @@ from matplotlib import colors
 from graph import NodeClass
 
 
-def display_marking_grid(graph, marking):
+def display_marking_grid(graph, marking, show_numbers=True):
     max_marking = 0
     grid_array = []
     for y in range(0, graph.max_row + 1):
@@ -55,12 +55,12 @@ def display_marking_grid(graph, marking):
     ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
     ax.set_xticks(np.arange(-.5, graph.max_column, 1))
     ax.set_yticks(np.arange(-.5, graph.max_row, 1))
-
-    for i in range(data.shape[0]):  # rows
-        for j in range(data.shape[1]):  # columns
-            label = data[i, j] - 1
-            if label == max_marking + 1:
-                label = "∞"
-            text = ax.text(j, i, label, ha="center", va="center", color="black")
+    if show_numbers:
+        for i in range(data.shape[0]):  # rows
+            for j in range(data.shape[1]):  # columns
+                label = data[i, j] - 1
+                if label == max_marking + 1:
+                    label = "∞"
+                text = ax.text(j, i, label, ha="center", va="center", color="black")
 
     plt.show()
