@@ -102,8 +102,8 @@ class Graph:
     def get_all_nodes(self, kind=None):
         all_ids = self.__node_map.keys()
         if kind:
-            all_ids = filter(lambda node_id: self.__node_map[node_id].kind == kind,
-                             all_ids)
+            all_ids = list(filter(lambda node_id: self.__node_map[node_id].kind == kind,
+                                  all_ids))
         return all_ids
 
     def remove_edge(self, from_id, to_id, kind):
@@ -196,11 +196,13 @@ class Graph:
                 for i in range(min_force, max_force + 1):
                     total_v = [x * i for x in v]
                     to_n = [y_coord + total_v[0], x_coord + total_v[1]]
-                    if to_n[0] < 0 or to_n[0] > self.max_row or to_n[1] < 0 or to_n[1] > self.max_column:
+                    if to_n[0] < 0 or to_n[0] > self.max_row or to_n[1] < 0 or to_n[
+                        1] > self.max_column:
                         continue
                     to_n_str = str(to_n[0]) + ":" + str(to_n[1])
                     if not self.get_edge(n, to_n_str,
-                                         EdgeClass.DISTURBANCE) and self.get_node(to_n_str) is not None:
+                                         EdgeClass.DISTURBANCE) and self.get_node(
+                        to_n_str) is not None:
                         self.__add_edge_to_graph(n, to_n_str,
                                                  Edge(n, to_n_str, 1,
                                                       EdgeClass.DISTURBANCE))
