@@ -2,6 +2,8 @@ import getopt
 import sys
 
 from graph import Graph
+from graphics import display_marking_grid
+from marking import Marking
 
 if __name__ == '__main__':
     argv = sys.argv[1:]
@@ -48,3 +50,7 @@ if __name__ == '__main__':
     print("Loaded %d nodes, %d edges and %d disturbance edges" % (
         len(graph.get_all_nodes()), graph.num_of_normal_edges,
         graph.num_of_disturbance_edges))
+    print("Graph dimensions: " + str(graph.max_row) + " x " + str(graph.max_column))
+
+    marking = Marking(graph)
+    display_marking_grid(graph, marking)

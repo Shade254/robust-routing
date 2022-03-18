@@ -102,8 +102,8 @@ class Graph:
     def get_all_nodes(self, kind=None):
         all_ids = self.__node_map.keys()
         if kind:
-            all_ids = filter(lambda node_id: self.__node_map[node_id].kind == kind,
-                             all_ids)
+            all_ids = list(filter(lambda node_id: self.__node_map[node_id].kind == kind,
+                                  all_ids))
         return all_ids
 
     def remove_edge(self, from_id, to_id, kind):
@@ -140,6 +140,20 @@ class Graph:
         if node_id in map_to_get:
             return [map_to_get[node_id][to] for to in map_to_get[node_id]]
         return None
+
+    def get_in_edges(self, node_id, kind):
+        map_to_get = self.__get_edge_map(kind)
+
+        in_edges = []
+
+        for from_node in map_to_get.keys():
+            if node_id in map_to_get[from_node]:
+                in_edges.append(map_to_get[from_node][node_id])
+
+        if len(in_edges) == 0:
+            return None
+
+        return in_edges
 
     def get_all_edges(self, kind=None):
         all_edges = []
@@ -196,11 +210,13 @@ class Graph:
                 for i in range(min_force, max_force + 1):
                     total_v = [x * i for x in v]
                     to_n = [y_coord + total_v[0], x_coord + total_v[1]]
-                    if to_n[0] < 0 or to_n[0] > self.max_row or to_n[1] < 0 or to_n[1] > self.max_column:
+                    if to_n[0] < 0 or to_n[0] > self.max_row or to_n[1] < 0 or to_n[
+                        1] > self.max_column:
                         continue
                     to_n_str = str(to_n[0]) + ":" + str(to_n[1])
                     if not self.get_edge(n, to_n_str,
-                                         EdgeClass.DISTURBANCE) and self.get_node(to_n_str) is not None:
+                                         EdgeClass.DISTURBANCE) and self.get_node(
+                        to_n_str) is not None:
                         self.__add_edge_to_graph(n, to_n_str,
                                                  Edge(n, to_n_str, 1,
                                                       EdgeClass.DISTURBANCE))
