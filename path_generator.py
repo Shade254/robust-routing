@@ -26,7 +26,7 @@ class PathGenerator(ABC):
         return self.getnextRecommendedEdge()
     
     def getnextRecommendedEdge(self):
-        return self.current_path.path_edges[0]
+        return self.current_path.path_edges.pop(0)
     
 
 
