@@ -1,7 +1,7 @@
 import getopt
 import sys
 
-from graph import Graph
+from graph import EdgeClass, Graph
 from graphics import display_marking_grid
 from marking import Marking
 from metrics import SafestPathMetric, ShortestPathMetric
@@ -70,8 +70,23 @@ if __name__ == '__main__':
     nodes_path2 = ['2:9', '3:9', '3:8', '3:7', '3:6', '3:5', '3:4', '3:3', '3:2', '3:1',
                    '2:1']
 
-    test_path1 = Path(nodes_path1, graph, marking)
-    test_path2 = Path(nodes_path2, graph, marking)
+    edges_path1 = []
+    edges_path2 = []
+
+    for i in range(len(nodes_path1)):
+        if i == 0:
+            continue
+        edges_path1.append(
+            graph.get_edge(nodes_path1[i - 1], nodes_path1[i], EdgeClass.NORMAL))
+
+    for i in range(len(nodes_path2)):
+        if i == 0:
+            continue
+        edges_path2.append(
+            graph.get_edge(nodes_path2[i - 1], nodes_path2[i], EdgeClass.NORMAL))
+
+    test_path1 = Path(edges_path1, graph, marking)
+    test_path2 = Path(edges_path2, graph, marking)
 
     shortest_metric = ShortestPathMetric()
     safest_metric = SafestPathMetric()

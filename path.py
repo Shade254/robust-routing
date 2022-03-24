@@ -1,15 +1,20 @@
 class Path:
-    # Shouldn't we store edges instead? This way we dont know if we took regular or
-    # disturbance edge between two nodes
-
-    def __init__(self, node_ids_array, graph, marking):
-        self.path_nodes = node_ids_array
-        self.path_marking = []
-
+    def __init__(self, edge_array, graph, marking):
         self.__graph = graph
         self.__graph_marking = marking
 
-        for n in node_ids_array:
+        self.path_edges = edge_array
+        self.path_nodes = []
+        self.overall_cost = 0
+
+        self.path_nodes.append(edge_array[0].from_id)
+        for e in edge_array:
+            self.path_nodes.append(e.to_id)
+            self.overall_cost += e.cost
+
+        self.path_marking = []
+
+        for n in self.path_nodes:
             if not self.__graph.get_node(n):
                 raise ValueError("Node " + n + " on the path is not in the graph")
             m = self.__graph_marking.get_marking(n)
