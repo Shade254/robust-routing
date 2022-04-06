@@ -6,10 +6,9 @@ from marking import Marking
 from abc import ABC, abstractmethod
 
 
-class PathGenerator(ABC):
-    current_path = Path()
-
+class PathGenerator(ABC):    
     def __init__(self, graph: Graph, goalnodeid, startnodeid, marking: Marking):
+        self.current_path = None
         self.buildPath(graph, goalnodeid, startnodeid, marking)
         pass
     
@@ -17,25 +16,26 @@ class PathGenerator(ABC):
     def buildPath(self, graph: Graph, goalnode_id, startnode_id, marking: Marking) -> Path:
         pass
 
-    def getFullPath(self):
+    def get_full_path(self):
         return self.current_path
         
-    def getStrategy(self, graph: Graph,goalnode,currentnodeid):
-        if(currentnodeid not in self.current_path.get_all_nodes()):
-            self.buildPath(graph,goalnode,currentnodeid)
-        return self.getnextRecommendedEdge()
+    def get_strategy(self, graph: Graph,goal_node,current_node_id):
+        if(current_node_id not in self.current_path.get_all_nodes()):
+            self.buildPath(graph,goal_node,current_node_id)
+        return self.get_next_recommended_edge(current_node_id)
     
-    def getnextRecommendedEdge(self):
-        return self.current_path.path_edges.pop(0)
+    def get_next_recommended_edge(self,current_node_id):
+        return self.current_path.get_edge_out_from_node(current_node_id)
+        
+        
     
 
 
 class ShortestPathGenerator(PathGenerator):
-    
-    def buildPath(self, graph: Graph, goalnodeid , startnodeid, marking: Marking) -> Path:
+    def build_path(self, graph: Graph, goalnodeid , startnodeid, marking: Marking) -> Path:
         self.current_path = self.dijkstra(graph,goalnodeid,startnodeid, marking)
 
-    def dijkstra (self, graph: Graph, goalnodeid, startnodeid, marking: Marking) -> Path:
+    def dijkstra(self, graph: Graph, goal_node_id, startnodeid, marking: Marking) -> Path:
         #loosely inspired by https://stackabuse.com/dijkstras-algorithm-in-python/
         frontier = PriorityQueue()
         
@@ -47,11 +47,11 @@ class ShortestPathGenerator(PathGenerator):
         visited_nodes = []
         while not frontier.empty():
             (dist,current_edge_path) = frontier.get()
-            current_edge = self.getLastAddedEdge(current_edge_path)
+            current_edge = self.get_last_added_edge(current_edge_path)
             current_node_id = current_edge.to_id
             visited_nodes.append(current_node_id)
 
-            if current_node_id == goalnodeid:
+            if current_node_id == goal_node_id:
                 return Path(current_edge_path,graph,marking)
 
             for edge in graph.get_out_edges(current_node_id, EdgeClass.NORMAL):
@@ -64,6 +64,6 @@ class ShortestPathGenerator(PathGenerator):
         #No route was found
         return None
     
-    def getLastAddedEdge(path: list):
+    def get_last_added_edge(path: list):
         return path[-1]
 
