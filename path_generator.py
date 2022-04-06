@@ -20,9 +20,9 @@ class PathGenerator(ABC):
     def get_full_path(self):
         return self.current_path
         
-    def get_strategy(self, graph: Graph,goal_node,current_node_id):
-        if(current_node_id not in self.current_path.get_all_nodes()):
-            self.build_path(graph,goal_node,current_node_id)
+    def get_strategy(self, graph: Graph, goal_node,current_node_id, marking: Marking, ):
+        if(current_node_id not in self.current_path.path_nodes):
+            self.build_path(graph,goal_node,current_node_id, marking)
         return self.get_next_recommended_edge(current_node_id)
     
     def get_next_recommended_edge(self,current_node_id):
