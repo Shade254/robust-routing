@@ -4,7 +4,7 @@ from graph import EdgeClass, Graph,Node, NodeClass
 from path import Path
 from marking import Marking
 from abc import ABC, abstractmethod
-import datetime
+from heapq import heappush, heappop
 
 
 class PathGenerator(ABC):    
@@ -28,26 +28,24 @@ class PathGenerator(ABC):
     def get_next_recommended_edge(self,current_node_id):
         return self.current_path.get_edge_out_from_node(current_node_id)
         
-
-from heapq import heappush, heappop
 class ShortestPathGenerator(PathGenerator):
     def build_path(self, graph: Graph, goalnode_id , startnode_id, marking: Marking) -> Path:
-        self.current_path = dijkstra_general(graph,goalnode_id,startnode_id, marking, True)
+        self.current_path = dijkstra(graph,goalnode_id,startnode_id, marking, False)
 
 
 class GreadyLowestRiskPathGenerator(PathGenerator):
     def build_path(self, graph: Graph, goalnode_id , startnode_id, marking: Marking) -> Path:
-        self.current_path = dijkstra_general(graph,goalnode_id,startnode_id, marking, False)
+        self.current_path = dijkstra(graph,goalnode_id,startnode_id, marking, True)
 
 
-def dijkstra_general(graph: Graph, goal_node_id, startnodeid, marking: Marking, is_cost_based) -> Path:
+def dijkstra(graph: Graph, goal_node_id, startnodeid, marking: Marking, use_risk_as_cost) -> Path:
         #loosely inspired by https://stackabuse.com/dijkstras-algorithm-in-python/
         frontier = []
         startedges = graph.get_out_edges(startnodeid,EdgeClass.NORMAL)
         for edge in startedges:
             if graph.get_node(edge.to_id).kind == NodeClass.OK:
                 start_path = [edge]
-                heappush(frontier, (get_edge_value(edge,marking,is_cost_based), id(start_path), start_path))
+                heappush(frontier, (get_edge_value(edge,marking,use_risk_as_cost), id(start_path), start_path))
 
         cost_to_reach_nodes = dict()    
         visited_nodes = [startnodeid]
@@ -65,7 +63,7 @@ def dijkstra_general(graph: Graph, goal_node_id, startnodeid, marking: Marking, 
             for edge in graph.get_out_edges(current_node_id, EdgeClass.NORMAL):
                 neighbor_node = graph.get_node(edge.to_id)
                 if (neighbor_node.kind == NodeClass.OK):
-                    cost = total_cost + get_edge_value(edge,marking,is_cost_based)
+                    cost = total_cost + get_edge_value(edge,marking,use_risk_as_cost)
                     if  (neighbor_node.id not in visited_nodes):
                         if (neighbor_node.id in cost_to_reach_nodes):
                             if cost_to_reach_nodes[neighbor_node.id] > cost:
@@ -82,8 +80,9 @@ def dijkstra_general(graph: Graph, goal_node_id, startnodeid, marking: Marking, 
 def get_last_added_edge(path):
         return path[-1]
 
-def get_edge_value(edge,marking,is_cost_based):
-    if is_cost_based:
-        return edge.cost
-    else:
+def get_edge_value(edge,marking,use_risk_as_cost):
+    if use_risk_as_cost:
         return (-marking.get_marking(edge.to_id))
+    else:
+        return edge.cost
+        
