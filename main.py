@@ -2,7 +2,7 @@ import getopt
 import sys
 
 from graph import EdgeClass, Graph
-from graphics import display_marking_grid
+from graphics import display_instance
 from marking import Marking
 from metrics import SafestPathMetric, ShortestPathMetric
 from path import Path
@@ -62,7 +62,6 @@ if __name__ == '__main__':
     # ======== MARKING NODES BY FATAL DISTANCE =========
 
     marking = Marking(graph)
-    display_marking_grid(graph, marking)
 
     # ================ TEST OF METRICS =================
 
@@ -103,3 +102,17 @@ if __name__ == '__main__':
     for p in sorted_safest:
         print(p)
         print("VAlUE: " + str(safest_metric.evaluate(p)))
+
+    # ================ DISPLAY PATH AND GRAPH =================
+    edges_path3 = []
+    for e in edges_path2:
+        dist_edges = ['2:9', '3:7', '3:6']
+        if e.from_id in dist_edges:
+            edges_path3.append(graph.get_edge(e.from_id, e.to_id, EdgeClass.DISTURBANCE))
+        else:
+            edges_path3.append(e)
+
+    while len(edges_path3) > 0:
+        test_path3 = Path(edges_path3, graph, marking)
+        display_instance(graph, marking, path=test_path3)
+        edges_path3.pop(0)
