@@ -2,8 +2,56 @@ import matplotlib.pyplot as plt
 import numpy as np
 from colour import Color
 from matplotlib import colors
+from matplotlib.patches import Circle
 
-from graph import NodeClass
+from graph import EdgeClass, NodeClass
+
+
+def display_instance(graph, marking, path=None, position=None, end=None):
+    if path:
+        if not position:
+            position = (
+                int(path.path_nodes[0].split(":")[1]),
+                int(path.path_nodes[0].split(":")[0]))
+        if not end:
+            end = (int(path.path_nodes[-1].split(":")[1]),
+                   int(path.path_nodes[-1].split(":")[0]))
+
+    ax = display_marking_grid(graph, marking)
+    if position:
+        ax = display_circle(ax, position, "black")
+    if end:
+        ax = display_circle(ax, end, "blue")
+
+    if path:
+        kind = path.path_edges[0].kind
+        y = [int(path.path_nodes[0].split(":")[0])]
+        x = [int(path.path_nodes[0].split(":")[1])]
+        for e in path.path_edges:
+            if e.kind == kind:
+                y.append(int(e.to_id.split(":")[0]))
+                x.append(int(e.to_id.split(":")[1]))
+            else:
+                ax = plot_line(ax, x, y, kind)
+                kind = e.kind
+                y = [int(e.from_id.split(":")[0]), int(e.to_id.split(":")[0])]
+                x = [int(e.from_id.split(":")[1]), int(e.to_id.split(":")[1])]
+        ax = plot_line(ax, x, y, kind)
+    plt.show()
+
+
+def plot_line(ax, xs, ys, kind):
+    color = "blue"
+    if kind == EdgeClass.DISTURBANCE:
+        color = "purple"
+    ax.plot(xs, ys, lw=3, color=color)
+    return ax
+
+
+def display_circle(ax, position, color):
+    drawObject = Circle(position, 0.48, fill=False, color=color, lw=3)
+    ax.add_patch(drawObject)
+    return ax
 
 
 def display_marking_grid(graph, marking, show_numbers=True):
@@ -63,5 +111,4 @@ def display_marking_grid(graph, marking, show_numbers=True):
                 if label == max_marking + 1:
                     label = "∞"
                 text = ax.text(j, i, label, ha="center", va="center", color="black")
-
-    plt.show()
+    return ax
