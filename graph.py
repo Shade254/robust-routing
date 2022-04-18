@@ -26,6 +26,8 @@ class Edge:
     cost: int
     kind: EdgeClass
 
+    
+
 
 class Graph:
     def __init__(self, path_to_graph):

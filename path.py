@@ -57,3 +57,10 @@ class Path:
         for i in range(len(self.path_nodes)):
             nodes.append(self.get_nth_node(i))
         return nodes
+
+    def get_edge_out_from_node(self,node_id):
+        for edge in self.path_edges:
+            if edge.from_id == node_id:
+                return edge
+        else:
+            return None
