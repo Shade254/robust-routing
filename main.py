@@ -7,6 +7,7 @@ from graphics import display_instance
 from marking import Marking
 from metrics import SafestPathMetric, ShortestPathMetric
 from path import Path
+from path_generator import ShortestPathGenerator
 
 if __name__ == '__main__':
 
@@ -113,7 +114,9 @@ if __name__ == '__main__':
         else:
             edges_path3.append(e)
 
-    player = PlayerPath(edges_path3)
+    path_generator = ShortestPathGenerator(graph, '2:9', '3:6', marking)
+    player = PlayerPath(path_generator, graph, marking, '2:9', '3:6')
+
     while not player.isAtGoal():
         test_path3 = Path(player.takeAction(), graph, marking)
         display_instance(graph, marking, path=test_path3)
