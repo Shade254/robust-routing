@@ -1,6 +1,7 @@
 import getopt
 import sys
 
+from PlayerInterface import PlayerPath
 from graph import EdgeClass, Graph
 from graphics import display_instance
 from marking import Marking
@@ -112,7 +113,8 @@ if __name__ == '__main__':
         else:
             edges_path3.append(e)
 
-    while len(edges_path3) > 0:
-        test_path3 = Path(edges_path3, graph, marking)
+    player = PlayerPath(edges_path3)
+    while not player.isAtGoal():
+        test_path3 = Path(player.takeAction(), graph, marking)
         display_instance(graph, marking, path=test_path3)
-        edges_path3.pop(0)
+
