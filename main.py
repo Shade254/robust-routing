@@ -6,6 +6,8 @@ from graphics import display_instance
 from marking import Marking
 from metrics import SafestPathMetric, ShortestPathMetric
 from path import Path
+import matplotlib.pyplot as plt
+
 
 if __name__ == '__main__':
 
@@ -52,12 +54,6 @@ if __name__ == '__main__':
 
     graph = Graph(graph_path)
     graph.create_disturbance_edges(direction, min_force, max_force)
-
-    print("Loaded %d nodes, %d edges and %d disturbance edges" % (
-        len(graph.get_all_nodes()), graph.num_of_normal_edges,
-        graph.num_of_disturbance_edges))
-    print("Graph dimensions: " + str(graph.max_row) + " x " + str(
-        graph.max_column) + "\n\n")
 
     # ======== MARKING NODES BY FATAL DISTANCE =========
 
@@ -114,5 +110,6 @@ if __name__ == '__main__':
 
     while len(edges_path3) > 0:
         test_path3 = Path(edges_path3, graph, marking)
-        display_instance(graph, marking, path=test_path3)
+        fig, ax = display_instance(graph, marking, path=test_path3)
+        plt.show()
         edges_path3.pop(0)

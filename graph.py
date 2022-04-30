@@ -79,6 +79,12 @@ class Graph:
             # for node_id in self.__node_map:
             #     self.__edge_map[node_id][node_id] = Edge(node_id, node_id)
 
+            print("Loaded %d nodes, %d edges and %d disturbance edges" % (
+                len(self.get_all_nodes()), self.num_of_normal_edges,
+                self.num_of_disturbance_edges))
+            print("Graph dimensions: " + str(self.max_row) + " x " + str(
+                self.max_column) + "\n\n")
+
     def __get_edge_map(self, kind):
         map_to_get = self.__normal_edge_map
         if kind == EdgeClass.DISTURBANCE:
@@ -86,6 +92,9 @@ class Graph:
         return map_to_get
 
     def __add_edge_to_graph(self, from_id, to_id, edge):
+        if edge.kind == EdgeClass.DISTURBANCE:
+            print("a")
+
         map_to_add = self.__get_edge_map(edge.kind)
 
         if from_id not in map_to_add:
@@ -141,7 +150,7 @@ class Graph:
 
         if node_id in map_to_get:
             return [map_to_get[node_id][to] for to in map_to_get[node_id]]
-        return None
+        return []
 
     def get_in_edges(self, node_id, kind):
         map_to_get = self.__get_edge_map(kind)
@@ -187,6 +196,10 @@ class Graph:
                     self.__add_edge_to_graph(n, cur_id,
                                              Edge(n, cur_id, 1, EdgeClass.NORMAL))
 
+    def delete_all_disturbance_edges(self):
+        self.__disturbance_edge_map = {}
+        self.num_of_disturbance_edges = 0
+
     def create_disturbance_edges(self, direction, min_force, max_force):
         vectors = []
         if len(direction) == 0:
@@ -222,3 +235,4 @@ class Graph:
                         self.__add_edge_to_graph(n, to_n_str,
                                                  Edge(n, to_n_str, 1,
                                                       EdgeClass.DISTURBANCE))
+        print("Created %d disturbance edges" % self.num_of_disturbance_edges)

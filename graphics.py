@@ -7,7 +7,7 @@ from matplotlib.patches import Circle
 from graph import EdgeClass, NodeClass
 
 
-def display_instance(graph, marking, path=None, position=None, end=None):
+def display_instance(graph, marking, path=None, position=None, end=None, show_numbers=True, in_gui=False):
     if path:
         if not position:
             position = (
@@ -17,7 +17,7 @@ def display_instance(graph, marking, path=None, position=None, end=None):
             end = (int(path.path_nodes[-1].split(":")[1]),
                    int(path.path_nodes[-1].split(":")[0]))
 
-    ax = display_marking_grid(graph, marking)
+    fig, ax = display_marking_grid(graph, marking, show_numbers, in_gui)
     if position:
         ax = display_circle(ax, position, "black")
     if end:
@@ -37,7 +37,7 @@ def display_instance(graph, marking, path=None, position=None, end=None):
                 y = [int(e.from_id.split(":")[0]), int(e.to_id.split(":")[0])]
                 x = [int(e.from_id.split(":")[1]), int(e.to_id.split(":")[1])]
         ax = plot_line(ax, x, y, kind)
-    plt.show()
+    return fig, ax
 
 
 def plot_line(ax, xs, ys, kind):
@@ -54,7 +54,7 @@ def display_circle(ax, position, color):
     return ax
 
 
-def display_marking_grid(graph, marking, show_numbers=True):
+def display_marking_grid(graph, marking, show_numbers=True, in_gui=False):
     max_marking = 0
     grid_array = []
     for y in range(0, graph.max_row + 1):
@@ -65,7 +65,7 @@ def display_marking_grid(graph, marking, show_numbers=True):
             if node:
                 if node.kind == NodeClass.FATAL:
                     row_array.append(1)
-                elif marking.get_marking(id_str):
+                elif marking and marking.get_marking(id_str):
                     max_marking = max(max_marking, marking.get_marking(id_str))
                     row_array.append(marking.get_marking(id_str) + 1)
                 else:
@@ -96,8 +96,13 @@ def display_marking_grid(graph, marking, show_numbers=True):
     cmap = colors.ListedColormap(gradient_str)
     bounds = list(range(0, max_marking + 4))
     norm = colors.BoundaryNorm(bounds, cmap.N)
+    if in_gui:
+        fig = plt.figure(1)
+        ax = plt.gca()
+        ax.cla()
+    else:
+        fig, ax = plt.subplots()
 
-    fig, ax = plt.subplots()
     ax.imshow(data, cmap=cmap, norm=norm)
 
     # draw gridlines
@@ -111,4 +116,4 @@ def display_marking_grid(graph, marking, show_numbers=True):
                 if label == max_marking + 1:
                     label = "∞"
                 text = ax.text(j, i, label, ha="center", va="center", color="black")
-    return ax
+    return fig, ax
