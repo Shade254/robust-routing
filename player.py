@@ -53,7 +53,7 @@ class ProbabilisticDisturbancePlayer(Player):
         current = self.player.current_position()
         intended_action = self.player.take_action()
 
-        dis = self.graph.get_in_edges(current, EdgeClass.DISTURBANCE)
+        dis = self.graph.get_out_edges(current, EdgeClass.DISTURBANCE)
         has_disturbance = len(dis) > 0
 
         option = random.uniform(0, 1)
