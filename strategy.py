@@ -23,7 +23,7 @@ class Strategy:
             if len(path) == 0:
                 edge = self.get_move(start)
             else:
-                edge = self.get_move(path[-1])
+                edge = self.get_move(path[-1].to_id)
             if not edge:
                 raise ValueError("Invalid strategy for path from " + start + " to " + end)
             path.append(edge)

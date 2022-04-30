@@ -1,8 +1,12 @@
 import getopt
 import sys
 
-from graph import Graph
+from graph import Graph, NodeClass
+from graphics import display_instance
 from marking import Marking
+from metrics import ShortestPathMetric
+from path import Path
+from player import NormalPlayer, ProbabilisticDisturbancePlayer
 from strategy import Strategy
 
 if __name__ == '__main__':
@@ -62,9 +66,36 @@ if __name__ == '__main__':
     marking = Marking(graph)
 
     # ================ TEST OF Strategy =================
+    start = "5:5"
+    goal = "1:1"
+    goal_pos = (int(goal.split(":")[0]),
+           int(goal.split(":")[1]))
+    probability = 0.2
+    strategy = Strategy(graph, goal, marking)
 
-    strategy = Strategy(graph, "1:1", marking)
-    print(strategy.get_move("1:2"))
-    print(strategy.get_move("2:1"))
-    print(strategy.get_move("4:1"))
+    player = NormalPlayer(strategy, graph, marking, start, goal)
+    disturbance = ProbabilisticDisturbancePlayer(player, graph, probability)
+
+    succes = True
+
+    actualPath = []
+
+    while not player.is_at_goal():
+        if graph.get_node(player.current_position()).kind == NodeClass.FATAL:
+            succes = False
+            break
+        next_edge = disturbance.take_action()
+        actualPath.append(next_edge)
+        path = Path(actualPath, graph, marking)
+        pos = (int(player.current_position().split(":")[1]), int(player.current_position().split(":")[0]))
+        display_instance(graph, marking, path, pos, goal_pos)
+
+    if succes:
+        print("Robot got to goal in " + str(len(actualPath)) + " moves")
+        print(ShortestPathMetric().evaluate(path))
+    else:
+        print("FATALITY")
+
+
+
 

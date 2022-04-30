@@ -19,7 +19,7 @@ class Player:
         pass
 
 
-class PlayerPath(Player):
+class NormalPlayer(Player):
     def __init__(self, strategy: Strategy, graph: Graph, marking: Marking, start, goal):
         self.current = start
         self.goal = goal
@@ -43,10 +43,11 @@ class PlayerPath(Player):
         self.current = pos
 
 
-class DisturbancePlayer(Player):
-    def __init__(self, player: Player, graph: Graph):
+class ProbabilisticDisturbancePlayer(Player):
+    def __init__(self, player: Player, graph: Graph, probability):
         self.player = player
         self.graph = graph
+        self.probability = probability
 
     def take_action(self):
         current = self.player.current_position()
@@ -56,7 +57,7 @@ class DisturbancePlayer(Player):
         has_disturbance = len(dis) > 0
 
         option = random.uniform(0, 1)
-        if has_disturbance and option <= 0.2:
+        if has_disturbance and option <= self.probability:
             disturbances_move = random.choice(dis)
             self.player.set_current_position(disturbances_move.to_id)
             return disturbances_move
