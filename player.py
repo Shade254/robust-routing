@@ -1,8 +1,8 @@
 import random
 
 from marking import Marking
-from path_generator import PathGenerator
-from graph import EdgeClass, Graph, Node, NodeClass
+from strategy import Strategy
+from graph import EdgeClass, Graph
 
 
 class Player:
@@ -20,13 +20,13 @@ class Player:
 
 
 class PlayerPath(Player):
-    def __init__(self, path_generator: PathGenerator, graph: Graph, marking: Marking, current, goal, ):
-        self.current = current
+    def __init__(self, strategy: Strategy, graph: Graph, marking: Marking, start, goal):
+        self.current = start
         self.goal = goal
         self.graph = graph
         self.marking = marking
-        self.pathGenerator = path_generator
-        self.currentPath = self.pathGenerator.current_path.path_edges
+        self.strategy = strategy
+        self.current_path = self.strategy.get_full_path(start, goal)
 
     def take_action(self):
         if self.current not in self.currentPath:

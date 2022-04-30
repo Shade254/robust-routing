@@ -1,12 +1,9 @@
 import getopt
 import sys
 
-from graph import EdgeClass, Graph
-from graphics import display_instance
+from graph import Graph
 from marking import Marking
-from metrics import SafestPathMetric, ShortestPathMetric
-from path import Path
-from path_generator import Strategy
+from strategy import Strategy
 
 if __name__ == '__main__':
 
