@@ -1,8 +1,8 @@
 import getopt
 import sys
 
-from PlayerInterface import PlayerPath
-from graph import EdgeClass, Graph
+from PlayerInterface import PlayerPath, DisturbancePlayer
+from graph import EdgeClass, Graph, NodeClass
 from graphics import display_instance
 from marking import Marking
 from metrics import SafestPathMetric, ShortestPathMetric
@@ -114,10 +114,10 @@ if __name__ == '__main__':
         else:
             edges_path3.append(e)
 
-    path_generator = ShortestPathGenerator(graph, '2:9', '3:6', marking)
-    player = PlayerPath(path_generator, graph, marking, '2:9', '3:6')
-
-    while not player.isAtGoal():
-        test_path3 = Path(player.takeAction(), graph, marking)
+    path_generator = ShortestPathGenerator(graph, '1:1', '13:26', marking)
+    player = PlayerPath(path_generator, graph, marking, '1:1', '13:26')
+    disturbnace = DisturbancePlayer(player, graph)
+    while not disturbnace.is_at_goal() and not graph.get_node(player.current_position()).kind == NodeClass.FATAL:
+        test_path3 = Path(disturbnace.take_action(), graph, marking)
         display_instance(graph, marking, path=test_path3)
 
