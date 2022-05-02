@@ -1,3 +1,4 @@
+import sys
 from queue import PriorityQueue
 
 from graph import EdgeClass, Graph
@@ -5,12 +6,10 @@ from marking import Marking
 
 
 class Strategy:
-    def __init__(self, graph: Graph, goal_node_id, marking: Marking):
+    def __init__(self, graph: Graph, marking: Marking):
         self.strategy = {}
         self.graph = graph
-        self.goal_node = goal_node_id
         self.marking = marking
-        self.build_strategy(graph, marking, goal_node_id)
 
     def get_move(self, node):
         if node in self.strategy:
@@ -29,7 +28,10 @@ class Strategy:
             path.append(edge)
         return path
 
-    def build_strategy(self, graph, marking, goal_node_id):
+    def build_strategy(self, goal_node_id):
+        if not goal_node_id:
+            return
+        self.strategy = {}
         queue = PriorityQueue()
         queue.put((0, [goal_node_id]))
 
@@ -37,15 +39,16 @@ class Strategy:
             current_value, current_path = queue.get()
             if current_path[-1] not in self.strategy:
                 if current_value != 0:
-                    self.strategy[current_path[-1]] = graph.get_edge(current_path[-1],
-                                                                     current_path[-2],
-                                                                     EdgeClass.NORMAL)
+                    self.strategy[current_path[-1]] = self.graph.get_edge(
+                        current_path[-1],
+                        current_path[-2],
+                        EdgeClass.NORMAL)
 
                 in_edges = self.graph.get_in_edges(current_path[-1], EdgeClass.NORMAL)
 
                 if in_edges:
                     for e in in_edges:
-                        queue.put((current_value + self.cost_func(e, marking),
+                        queue.put((current_value + self.cost_func(e, self.marking),
                                    current_path + [e.from_id]))
 
     def cost_func(self, e, marking):
@@ -56,17 +59,25 @@ class ShortestPathStrategy(Strategy):
     def cost_func(self, e, marking):
         return e.cost
 
+    def __str__(self):
+        return "ShortestPathStrategy"
+
 
 class CombinedPathStrategy(Strategy):
-    def __init__(self, graph: Graph, goal_node_id, marking: Marking, alpha, beta,
-                 risk_function):
-        super().__init__(graph, goal_node_id, marking)
+    def __init__(self, graph: Graph, marking: Marking, alpha, beta,
+                 risk_function, risk_function_name="UNKNOWN"):
+        super().__init__(graph, marking)
         self.alpha = alpha
         self.beta = beta
         self.risk_function = risk_function
+        self.risk_function_name = risk_function_name
 
     def cost_func(self, e, marking):
         risk_value = marking.get_marking(e.to_id)
         if not risk_value:
-            risk_value = 0
+            return sys.maxsize
         return self.alpha * e.cost + self.beta * self.risk_function(risk_value)
+
+    def __str__(self):
+        return "CombinedPathStrategy," + self.risk_function_name + "," + str(
+            self.alpha) + "," + str(self.beta)

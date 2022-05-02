@@ -1,13 +1,13 @@
 import getopt
+import math
 import sys
 
-from graph import Graph, NodeClass
+from executor import TestExecutor
+from graph import Graph
 from graphics import display_instance
 from marking import Marking
-from metrics import ShortestPathMetric
-from path import Path
-from player import NormalPlayer, ProbabilisticDisturbancePlayer
-from strategy import Strategy
+from strategy import CombinedPathStrategy
+from utils import generate_od_pairs, output_to_csv
 
 if __name__ == '__main__':
 
@@ -65,37 +65,18 @@ if __name__ == '__main__':
 
     marking = Marking(graph)
 
-    # ================ TEST OF Strategy =================
-    start = "5:5"
-    goal = "1:1"
-    goal_pos = (int(goal.split(":")[0]),
-           int(goal.split(":")[1]))
-    probability = 0.2
-    strategy = Strategy(graph, goal, marking)
+    # ================ RUN TEST =================
+    tested_strategies = [
+        CombinedPathStrategy(graph, marking, 1, 1, lambda x: 1 / x, "1/x"),
+        CombinedPathStrategy(graph, marking, 1, 1, lambda x: 1 / (math.e ** x), "1/e^x")]
+    pairs = generate_od_pairs(graph, marking, 5, min_distance=4)
+    executor = TestExecutor(graph, marking, tested_strategies, pairs, 0.4)
 
-    player = NormalPlayer(strategy, graph, marking, start, goal)
-    disturbance = ProbabilisticDisturbancePlayer(player, graph, probability)
+    results = executor.execute()
 
-    succes = True
+    output_to_csv(results)
 
-    actualPath = []
-
-    while not player.is_at_goal():
-        if graph.get_node(player.current_position()).kind == NodeClass.FATAL:
-            succes = False
-            break
-        next_edge = disturbance.take_action()
-        actualPath.append(next_edge)
-        path = Path(actualPath, graph, marking)
-        pos = (int(player.current_position().split(":")[1]), int(player.current_position().split(":")[0]))
-        display_instance(graph, marking, path, pos, goal_pos)
-
-    if succes:
-        print("Robot got to goal in " + str(len(actualPath)) + " moves")
-        print(ShortestPathMetric().evaluate(path))
-    else:
-        print("FATALITY")
-
-
-
-
+    for i in range(len(results[tested_strategies[0].__str__()])):
+        for s in results.keys():
+            display_instance(graph, marking, results[s][i][3])
+            display_instance(graph, marking, results[s][i][4])

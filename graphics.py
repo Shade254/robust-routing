@@ -81,7 +81,6 @@ def display_marking_grid(graph, marking, show_numbers=True):
     for c in gradient:
         gradient_str.append(c.get_hex_l())
     gradient_str.append("#ffffff")
-    print("Gradient: " + str(gradient_str))
 
     for row in range(len(grid_array)):
         for i in range(len(grid_array[row])):
@@ -89,8 +88,6 @@ def display_marking_grid(graph, marking, show_numbers=True):
                 grid_array[row][i] = max_marking + 2
 
     data = np.array(grid_array)
-    print("Marking of the graph:")
-    print(data)
 
     # create discrete colormap
     cmap = colors.ListedColormap(gradient_str)
