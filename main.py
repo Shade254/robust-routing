@@ -1,12 +1,13 @@
 import getopt
+import math
 import sys
 
-from graph import EdgeClass, Graph
+from executor import TestExecutor
+from graph import Graph
 from graphics import display_instance
 from marking import Marking
-from metrics import SafestPathMetric, ShortestPathMetric
-from path import Path
-from path_generator import Strategy
+from strategy import CombinedPathStrategy
+from utils import generate_od_pairs, output_to_csv
 
 if __name__ == '__main__':
 
@@ -64,10 +65,18 @@ if __name__ == '__main__':
 
     marking = Marking(graph)
 
-    # ================ TEST OF Strategy =================
+    # ================ RUN TEST =================
+    tested_strategies = [
+        CombinedPathStrategy(graph, marking, 1, 1, lambda x: 1 / x, "1/x"),
+        CombinedPathStrategy(graph, marking, 1, 1, lambda x: 1 / (math.e ** x), "1/e^x")]
+    pairs = generate_od_pairs(graph, marking, 5, min_distance=4)
+    executor = TestExecutor(graph, marking, tested_strategies, pairs, 0.4)
 
-    strategy = Strategy(graph, "1:1", marking)
-    print(strategy.get_move("1:2"))
-    print(strategy.get_move("2:1"))
-    print(strategy.get_move("4:1"))
+    results = executor.execute()
 
+    output_to_csv(results)
+
+    for i in range(len(results[tested_strategies[0].__str__()])):
+        for s in results.keys():
+            display_instance(graph, marking, results[s][i][3])
+            display_instance(graph, marking, results[s][i][4])

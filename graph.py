@@ -165,7 +165,9 @@ class Graph:
 
         if not kind or kind == EdgeClass.DISTURBANCE:
             for f in self.get_all_nodes():
-                all_edges.extend(self.get_out_edges(f, EdgeClass.DISTURBANCE))
+                edge = self.get_out_edges(f, EdgeClass.DISTURBANCE)
+                if edge is not None:
+                    all_edges.extend(edge)
         return all_edges
 
     def __connect_to_grid(self, cur_id):
