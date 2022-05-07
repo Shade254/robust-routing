@@ -1,9 +1,13 @@
 import sys
 from queue import PriorityQueue
 
-from graph import EdgeClass, Graph
+from graph import EdgeClass, Graph, NodeClass
 from marking import Marking
 
+
+# create Strategy interface
+# Rename Strategy -> routing strategy
+# one more implementation DynamicProgrammingStrategy (change build_strategy function)
 
 class Strategy:
     def __init__(self, graph: Graph, marking: Marking):
@@ -48,8 +52,9 @@ class Strategy:
 
                 if in_edges:
                     for e in in_edges:
-                        queue.put((current_value + self.cost_func(e, self.marking),
-                                   current_path + [e.from_id]))
+                        if self.graph.get_node(e.from_id).kind == NodeClass.OK:
+                            queue.put((current_value + self.cost_func(e, self.marking),
+                                       current_path + [e.from_id]))
 
     def cost_func(self, e, marking):
         return 1

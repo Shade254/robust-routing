@@ -62,3 +62,16 @@ def output_to_csv(results):
                         str = str[:-1]
                 str += '\n'
                 f.write(str)
+
+
+def get_succes_rate(list_of_bool):
+    sum = 0
+    for i in list_of_bool:
+        if i:
+            sum += 1
+
+    return sum / len(list_of_bool)
+
+
+def get_length_difference(string_path1, string_path2):
+    return len(string_path1.split("-")) - len(string_path2.split("-"))
