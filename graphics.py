@@ -17,7 +17,7 @@ def display_instance(graph, marking, path=None, position=None, end=None):
             end = (int(path.path_nodes[-1].split(":")[1]),
                    int(path.path_nodes[-1].split(":")[0]))
 
-    ax = display_marking_grid(graph, marking)
+    ax = display_marking_grid(graph, marking, show_numbers=False)
     if position:
         ax = display_circle(ax, position, "black")
     if end:

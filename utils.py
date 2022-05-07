@@ -15,6 +15,9 @@ def generate_od_pairs(graph, marking, count, min_distance=2, min_risk=1,
         while True:
             from_node = random.choice(all_nodes)
             from_risk = marking.get_marking(from_node)
+            if not from_risk:
+                from_risk = sys.maxsize
+
             if min_risk <= from_risk <= max_risk:
                 break
 
@@ -22,7 +25,10 @@ def generate_od_pairs(graph, marking, count, min_distance=2, min_risk=1,
             to_node = random.choice(all_nodes)
             to_risk = marking.get_marking(to_node)
 
-            if min_risk > to_risk > max_risk:
+            if not to_risk:
+                to_risk = sys.maxsize
+
+            if min_risk >= to_risk >= max_risk:
                 continue
 
             distance_y = abs(
