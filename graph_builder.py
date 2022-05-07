@@ -1,4 +1,3 @@
-import enum
 import numpy as np
 import random
 from enum import Enum
@@ -9,7 +8,7 @@ class NeigbourDirection(Enum):
     Left = 3
     Right = 4
 
-def graph_builder(x_size, y_size, num_of_fatal_nodes, num_of_clusters, output_path):
+def graph_builder(x_size, y_size, num_of_fatal_nodes, num_of_clusters, output_path, ensure_connected=True):
     graph = []
     fatal_nodes_placed = []
     output_file = open(output_path, "w")
@@ -35,13 +34,18 @@ def graph_builder(x_size, y_size, num_of_fatal_nodes, num_of_clusters, output_pa
             continue
         graph[x][y] = 'x'
         fatal_nodes_placed.append((x, y)) 
+        if(ensure_connected):
+            if(not graph_is_connected(graph,x_size,y_size,len(fatal_nodes_placed))):
+                graph[x][y] = '.'
+                fatal_nodes_placed.pop()
     
     #Fill out all the holes in fatal clusters
-    for x in range(x_size):
-        for y in range(y_size):
-            if all_neigbours_are_fatal(graph,x,y) and graph[x][y] != 'x':
-                graph[x][y] = 'x'
-                fatal_nodes_placed.append((x, y))
+    if(not ensure_connected):
+        for x in range(x_size):
+            for y in range(y_size):
+                if all_neigbours_are_fatal(graph,x,y) and graph[x][y] != 'x':
+                    graph[x][y] = 'x'
+                    fatal_nodes_placed.append((x, y))
  
     if graph_is_connected(graph,x_size,y_size,len(fatal_nodes_placed)):
         for i in range(x_size):
@@ -168,7 +172,7 @@ for i in range(5):
     counter = 1
     while(True):
         print(f'try {counter}')
-        graph = graph_builder(40,60,250,5,f'test_cases/test_case_{i}.txt') 
+        graph = graph_builder(40,60,1000,5,f'test_cases/test_case_{i}.txt',False) 
         counter += 1
         if(graph != None):
             break
