@@ -5,9 +5,8 @@ from executor import TestExecutor
 from graph import Graph
 from graphics import display_instance
 from marking import Marking
-from metrics import SafestPathMetric, ShortestPathMetric, VectorSafetyMetric
-from strategy import CombinedPathStrategy, DynamicProgrammingStrategy, \
-    ShortestPathStrategy
+from metrics import SafestPathMetric, ShortestPathMetric
+from strategy import DynamicProgrammingStrategy
 from utils import generate_od_pairs, output_to_csv
 
 if __name__ == '__main__':
@@ -71,7 +70,7 @@ if __name__ == '__main__':
         DynamicProgrammingStrategy(graph, marking, ShortestPathMetric()),
         DynamicProgrammingStrategy(graph, marking, SafestPathMetric(marking))
         ]
-    pairs = generate_od_pairs(graph, marking, 5, min_distance=4)
+    pairs = generate_od_pairs(graph, marking, 5, min_distance=5)
     executor = TestExecutor(graph, marking, tested_strategies, pairs, 0)
 
     results = executor.execute()
@@ -80,6 +79,6 @@ if __name__ == '__main__':
 
     for i in range(len(results[tested_strategies[0].__str__()])):
         for s in results.keys():
-            display_instance(graph, marking, results[s][i][3])
+            display_instance(graph, marking, path=results[s][i][3])
             print("Displaying " + str(i) + " " + s)
-            #display_instance(graph, marking, results[s][i][4])
+            # display_instance(graph, marking, results[s][i][4])

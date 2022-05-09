@@ -70,6 +70,23 @@ def output_to_csv(results):
                 f.write(str)
 
 
+def get_edge_direction(edge):
+    from_id = [int(x) for x in edge.from_id.split(':')]
+    to_id = [int(x) for x in edge.to_id.split(':')]
+
+    vector = [from_id[i] - to_id[i] for i in range(len(from_id))]
+
+    if vector == [-1, 0]:
+        return 'b'
+    elif vector == [1, 0]:
+        return 'u'
+    elif vector == [0, -1]:
+        return 'r'
+    elif vector == [0, 1]:
+        return 'l'
+    return None
+
+
 def get_succes_rate(list_of_bool):
     sum = 0
     for i in list_of_bool:

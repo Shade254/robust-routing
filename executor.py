@@ -1,3 +1,4 @@
+from graphics import display_instance
 from path import Path
 from player import NormalPlayer, ProbabilisticDisturbancePlayer
 
@@ -22,6 +23,8 @@ class TestExecutor:
                 if s.__str__() not in results:
                     results[s.__str__()] = []
                 s.build_strategy(d)
+                tuple_d = (int(d.split(':')[1]), int(d.split(':')[0]))
+                display_instance(self.graph, self.marking, s, None, None, tuple_d)
                 player = NormalPlayer(s, self.graph, self.marking, o, d)
                 dist_player = ProbabilisticDisturbancePlayer(player, self.graph,
                                                              self.probability)

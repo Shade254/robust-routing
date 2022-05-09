@@ -16,6 +16,7 @@ class ShortestPathMetric(Metric):
     def __str__(self):
         return "ShortestLength"
 
+
 class VectorSafetyMetric(Metric):
     def __init__(self, marking):
         self.marking = marking
@@ -53,6 +54,7 @@ class VectorSafetyMetric(Metric):
     def __str__(self):
         return "VectorSafePath"
 
+
 class SafestPathMetric(Metric):
     def __init__(self, marking):
         self.marking = marking
@@ -72,10 +74,15 @@ class SafestPathMetric(Metric):
                 m = sys.maxsize
             markings2.append(m)
 
-        if min(markings1) < min(markings2):
+        if min(markings1) > min(markings2):
             return path1
-
-        return path2
+        elif min(markings2) > min(markings1):
+            return path2
+        else:
+            if len(path1) < len(path2):
+                return path1
+            else:
+                return path2
 
     def __str__(self):
         return "SafestPath"

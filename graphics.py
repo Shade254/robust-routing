@@ -5,9 +5,10 @@ from matplotlib import colors
 from matplotlib.patches import Circle
 
 from graph import EdgeClass, NodeClass
+from utils import get_edge_direction
 
 
-def display_instance(graph, marking, path=None, position=None, end=None):
+def display_instance(graph, marking, strategy=None, path=None, position=None, end=None):
     if path:
         if not position:
             position = (
@@ -17,7 +18,7 @@ def display_instance(graph, marking, path=None, position=None, end=None):
             end = (int(path.path_nodes[-1].split(":")[1]),
                    int(path.path_nodes[-1].split(":")[0]))
 
-    ax = display_marking_grid(graph, marking, show_numbers=False)
+    ax = display_marking_grid(graph, marking, strategy, show_numbers=False)
     if position:
         ax = display_circle(ax, position, "black")
     if end:
@@ -54,7 +55,7 @@ def display_circle(ax, position, color):
     return ax
 
 
-def display_marking_grid(graph, marking, show_numbers=True):
+def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
     max_marking = 0
     grid_array = []
     for y in range(0, graph.max_row + 1):
@@ -101,11 +102,45 @@ def display_marking_grid(graph, marking, show_numbers=True):
     ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
     ax.set_xticks(np.arange(-.5, graph.max_column, 1))
     ax.set_yticks(np.arange(-.5, graph.max_row, 1))
+    for y in range(0, graph.max_row + 1):
+        for x in range(0, graph.max_column + 1):
+            id_str = str(y) + ":" + str(x)
+            if graph.get_node(id_str).kind == NodeClass.FATAL:
+                text = ax.text(x, y, "X", ha="center", va="center", color="black")
+
+    if show_numbers and strategy:
+        print("Cannot display both numbers and strategy")
+        return ax
+
     if show_numbers:
-        for i in range(data.shape[0]):  # rows
-            for j in range(data.shape[1]):  # columns
+        for i in range(data.shape[0]):
+            for j in range(data.shape[1]):
                 label = data[i, j] - 1
                 if label == max_marking + 1:
                     label = "∞"
                 text = ax.text(j, i, label, ha="center", va="center", color="black")
+
+    if strategy:
+        for y in range(0, graph.max_row + 1):
+            for x in range(0, graph.max_column + 1):
+                id_str = str(y) + ":" + str(x)
+                if graph.get_node(id_str).kind == NodeClass.FATAL:
+                    continue
+                edge = strategy.get_move(id_str)
+                if not edge:
+                    label = "?"
+                else:
+                    dir = get_edge_direction(edge)
+                    if dir == "r":
+                        label = "→"
+                    elif dir == "l":
+                        label = "←"
+                    elif dir == "b":
+                        label = "↓"
+                    elif dir == "u":
+                        label = "↑"
+                    else:
+                        label = "?"
+                text = ax.text(x, y, label, ha="center", va="center", color="black")
+
     return ax
