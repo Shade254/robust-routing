@@ -5,7 +5,7 @@ from executor import TestExecutor
 from graph import Graph
 from graphics import display_instance
 from marking import Marking
-from metrics import SafestPathMetric, ShortestPathMetric
+from metrics import SafestPathMetric, ShortestPathMetric, VectorSafetyMetric
 from strategy import DynamicProgrammingStrategy
 from utils import generate_od_pairs, output_to_csv
 
@@ -68,9 +68,10 @@ if __name__ == '__main__':
     # ================ RUN TEST =================
     tested_strategies = [
         DynamicProgrammingStrategy(graph, marking, ShortestPathMetric()),
-        DynamicProgrammingStrategy(graph, marking, SafestPathMetric(marking))
+        DynamicProgrammingStrategy(graph, marking, SafestPathMetric(marking)),
+        DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking))
         ]
-    pairs = generate_od_pairs(graph, marking, 5, min_distance=5)
+    pairs = generate_od_pairs(graph, marking, 5, min_distance=14)
     executor = TestExecutor(graph, marking, tested_strategies, pairs, 0)
 
     results = executor.execute()
@@ -81,5 +82,5 @@ if __name__ == '__main__':
         for s in results.keys():
             display_instance(graph, marking, path=results[s][i][3], title=s + ",Planned")
             print("Displaying " + str(i) + " " + s)
-            display_instance(graph, marking, results[s][i][4], path=results[s][i][3],
-                             title=s + ",Executed")
+            # display_instance(graph, marking, path=results[s][i][4],
+            #                  title=s + ",Executed")

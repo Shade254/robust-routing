@@ -107,7 +107,7 @@ def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
     for y in range(0, graph.max_row + 1):
         for x in range(0, graph.max_column + 1):
             id_str = str(y) + ":" + str(x)
-            if graph.get_node(id_str).kind == NodeClass.FATAL:
+            if graph.get_node(id_str) and graph.get_node(id_str).kind == NodeClass.FATAL:
                 text = ax.text(x, y, "X", ha="center", va="center", color="black")
 
     if show_numbers and strategy:
@@ -126,7 +126,8 @@ def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
         for y in range(0, graph.max_row + 1):
             for x in range(0, graph.max_column + 1):
                 id_str = str(y) + ":" + str(x)
-                if graph.get_node(id_str).kind == NodeClass.FATAL:
+                if graph.get_node(id_str) and graph.get_node(
+                        id_str).kind == NodeClass.FATAL:
                     continue
                 edge = strategy.get_move(id_str)
                 if not edge:

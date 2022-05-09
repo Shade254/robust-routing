@@ -44,9 +44,9 @@ class VectorSafetyMetric(Metric):
         enums = set(enums)
 
         for i in enums:
-            if (i in vector1 and i not in vector2) or vector1[i] < vector2[i]:
+            if (i in vector2 and i not in vector1) or vector1[i] < vector2[i]:
                 return path1
-            elif (i in vector2 and i not in vector1) or vector2[i] < vector1[i]:
+            elif (i in vector1 and i not in vector2) or vector2[i] < vector1[i]:
                 return path2
 
         return path1
