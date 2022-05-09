@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     for i in range(len(results[tested_strategies[0].__str__()])):
         for s in results.keys():
-            display_instance(graph, marking, path=results[s][i][3])
+            display_instance(graph, marking, path=results[s][i][3], title=s + ",Planned")
             print("Displaying " + str(i) + " " + s)
-            # display_instance(graph, marking, results[s][i][4])
+            display_instance(graph, marking, results[s][i][4], path=results[s][i][3],
+                             title=s + ",Executed")

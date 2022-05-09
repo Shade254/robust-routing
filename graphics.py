@@ -8,7 +8,8 @@ from graph import EdgeClass, NodeClass
 from utils import get_edge_direction
 
 
-def display_instance(graph, marking, strategy=None, path=None, position=None, end=None):
+def display_instance(graph, marking, strategy=None, path=None, position=None, end=None,
+                     title=None):
     if path:
         if not position:
             position = (
@@ -38,6 +39,7 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
                 y = [int(e.from_id.split(":")[0]), int(e.to_id.split(":")[0])]
                 x = [int(e.from_id.split(":")[1]), int(e.to_id.split(":")[1])]
         ax = plot_line(ax, x, y, kind)
+    plt.title(title)
     plt.show()
 
 
