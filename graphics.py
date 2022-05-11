@@ -20,12 +20,12 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
                    int(path.path_nodes[-1].split(":")[0]))
     fig, ax = plt.subplots()
     if position:
-        display_icon(ax, position, "start.png")
+        display_icon(ax, position, "icons/start.png")
     if end:
         if graph.get_node(str(end[1]) + ":" + str(end[0])).kind == NodeClass.FATAL:
-            display_icon(ax, end, "fatal.png")
+            display_icon(ax, end, "icons/fatal.png")
         else:
-            display_icon(ax, end, "end.png")
+            display_icon(ax, end, "icons/end.png")
     ax = display_marking_grid(ax, graph, marking, strategy, show_numbers=False,
                               leave_out=[position, end])
     plt.title(title)
