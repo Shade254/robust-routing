@@ -1,8 +1,8 @@
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 from colour import Color
 from matplotlib import colors
-from matplotlib.patches import Circle
 
 from graph import EdgeClass, NodeClass
 from utils import get_edge_direction
@@ -18,12 +18,17 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
         if not end:
             end = (int(path.path_nodes[-1].split(":")[1]),
                    int(path.path_nodes[-1].split(":")[0]))
-
-    ax = display_marking_grid(graph, marking, strategy, show_numbers=False)
+    fig, ax = plt.subplots()
     if position:
-        ax = display_circle(ax, position, "black")
+        display_icon(ax, position, "start.png")
     if end:
-        ax = display_circle(ax, end, "blue")
+        if graph.get_node(str(end[1]) + ":" + str(end[0])).kind == NodeClass.FATAL:
+            display_icon(ax, end, "fatal.png")
+        else:
+            display_icon(ax, end, "end.png")
+    ax = display_marking_grid(ax, graph, marking, strategy, show_numbers=False,
+                              leave_out=[position, end])
+    plt.title(title)
 
     if path:
         kind = path.path_edges[0].kind
@@ -39,7 +44,6 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
                 y = [int(e.from_id.split(":")[0]), int(e.to_id.split(":")[0])]
                 x = [int(e.from_id.split(":")[1]), int(e.to_id.split(":")[1])]
         ax = plot_line(ax, x, y, kind)
-    plt.title(title)
     plt.show()
 
 
@@ -51,13 +55,16 @@ def plot_line(ax, xs, ys, kind):
     return ax
 
 
-def display_circle(ax, position, color):
-    drawObject = Circle(position, 0.48, fill=False, color=color, lw=3)
-    ax.add_patch(drawObject)
-    return ax
+def display_icon(ax, position, path):
+    img = mpimg.imread(path)
+    ax.imshow(img,
+              extent=(
+              position[0] - 0.5, position[0] + 0.5, position[1] + 0.5, position[1] - 0.5),
+              zorder=2)
 
 
-def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
+def display_marking_grid(ax, graph, marking, strategy=None, show_numbers=True,
+                         leave_out=[]):
     max_marking = 0
     grid_array = []
     for y in range(0, graph.max_row + 1):
@@ -97,7 +104,6 @@ def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
     bounds = list(range(0, max_marking + 4))
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
-    fig, ax = plt.subplots()
     ax.imshow(data, cmap=cmap, norm=norm)
 
     # draw gridlines
@@ -108,6 +114,8 @@ def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
         for x in range(0, graph.max_column + 1):
             id_str = str(y) + ":" + str(x)
             if graph.get_node(id_str) and graph.get_node(id_str).kind == NodeClass.FATAL:
+                if (x, y) in leave_out:
+                    continue
                 text = ax.text(x, y, "X", ha="center", va="center", color="black")
 
     if show_numbers and strategy:
@@ -117,6 +125,8 @@ def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
     if show_numbers:
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
+                if (j, i) in leave_out:
+                    continue
                 label = data[i, j] - 1
                 if label == max_marking + 1:
                     label = "∞"
@@ -125,6 +135,8 @@ def display_marking_grid(graph, marking, strategy=None, show_numbers=True):
     if strategy:
         for y in range(0, graph.max_row + 1):
             for x in range(0, graph.max_column + 1):
+                if (x, y) in leave_out:
+                    continue
                 id_str = str(y) + ":" + str(x)
                 if graph.get_node(id_str) and graph.get_node(
                         id_str).kind == NodeClass.FATAL:
