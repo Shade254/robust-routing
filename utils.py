@@ -43,15 +43,20 @@ def generate_od_pairs(graph, marking, count, min_distance=2, min_risk=1,
     return pairs
 
 
-def output_to_csv(results):
+def output_to_csv(results,path=None):
     for k, v in results.items():
         time_stamp = time.strftime("%b_%d_%Y_%H_%M", time.localtime())
-        filename = k.split(",")[0] + "_" + time_stamp + ".csv"
+        if path is None:
+            filename = k.split(",")[0] + "_" + time_stamp + ".csv"
+        else:
+            filename = path
         existing = os.path.exists(filename)
         with open(filename, "a") as f:
             if not existing:
-                f.write(
-                    "Name,Function,Alpha,Beta,Start,End,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
+                f.write("Name,Function,Alpha,Beta,Start,End,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
+                    #"Name,Function,Alpha,Beta,Start,End,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
+            else :
+                f.write('\n')
             for row in v:
                 str = k
                 for entry in row:

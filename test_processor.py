@@ -18,7 +18,7 @@ def save_csv(df, path):
     df.to_csv(path, index=False)
 
 #df = read_csv("DynamicProgrammingStrategy_May_10_2022_18_03.csv")
-df = read_csv("DynamicProgrammingStrategy_May_10_2022_19_16.csv")
+df = read_csv("strategies_results.csv")
 
 output_columns = columns=['strategy','success_rate','increase_in_length','executed_increase_in_length','avg_planned_marking','avg_executed_marking']
 df_output = pd.DataFrame(columns=output_columns)
@@ -49,7 +49,7 @@ for name, group in grouped:
 
     df_output.loc[len(df_output), df_output.columns] = [name, succes_rate, ut.get_percentage(increase_in_length), ut.get_percentage(executed_increase_in_length), avg_planned_marking, avg_executed_marking]
 
-save_csv(df_output, "output.csv")
+save_csv(df_output, "output2.csv")
 print(df_output)
        
 
