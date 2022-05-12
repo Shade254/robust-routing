@@ -1,4 +1,7 @@
 import random
+import sys
+
+from scipy.stats import expon
 
 from graph import EdgeClass, Graph, NodeClass
 from marking import Marking
@@ -48,32 +51,13 @@ class NormalPlayer(Player):
         self.executed_path = []
 
 
-class ProbabilisticDisturbancePlayer(Player):
-    def __init__(self, player: Player, graph: Graph, probability):
+class DisturbancePlayer(Player):
+    def __init__(self, player: Player, graph: Graph):
         super().__init__()
         self.player = player
         self.graph = graph
-        self.probability = probability
         self.planned_path = player.planned_path
         self.executed_path = player.executed_path
-
-    def take_action(self):
-        current = self.player._current
-        intended_action = self.player.take_action()
-
-        dis = self.graph.get_out_edges(current, EdgeClass.DISTURBANCE)
-        has_disturbance = len(dis) > 0
-
-        option = random.uniform(0, 1)
-        if has_disturbance and option <= self.probability:
-            disturbances_move = random.choice(dis)
-            self.player._current = disturbances_move.to_id
-            self.player.executed_path[-1] = disturbances_move
-            self.planned_path = self.player.executed_path
-            return disturbances_move
-
-        self.executed_path = self.player.executed_path
-        return intended_action
 
     def is_at_goal(self) -> bool:
         return self.player.is_at_goal()
@@ -81,3 +65,79 @@ class ProbabilisticDisturbancePlayer(Player):
     def reset(self, start, goal):
         self.player.reset(start, goal)
         self.planned_path = self.player.planned_path
+
+    def has_disturbance(self, node):
+        return len(self.graph.get_out_edges(node, EdgeClass.DISTURBANCE)) > 0
+
+    def should_trigger(self):
+        return False
+
+    def pick_disturbance(self, node):
+        return random.choice(self.graph.get_out_edges(node, EdgeClass.DISTURBANCE))
+
+    def take_action(self):
+        current = self.player._current
+        intended_action = self.player.take_action()
+
+        if self.has_disturbance(current) and self.should_trigger():
+            disturbance_move = self.pick_disturbance(current)
+            self.player._current = disturbance_move.to_id
+            self.player.executed_path[-1] = disturbance_move
+            self.planned_path = self.player.executed_path
+            return disturbance_move
+
+        self.executed_path = self.player.executed_path
+        return intended_action
+
+
+class ProbabilisticDisturbancePlayer(DisturbancePlayer):
+    def __init__(self, player: Player, graph: Graph, probability):
+        super().__init__(player, graph)
+        self.probability = probability
+
+    def should_trigger(self):
+        return random.uniform(0, 1) <= self.probability
+
+
+class ProbabilisticMaliciousDisturbancePlayer(ProbabilisticDisturbancePlayer):
+    def __init__(self, player, graph, probability, marking):
+        super().__init__(player, graph, probability)
+        self.marking = marking
+
+    def pick_disturbance(self, node):
+        dist_edges = self.graph.get_out_edges(node, EdgeClass.DISTURBANCE)
+        min_robustnes = sys.maxsize
+        min_edge = None
+
+        for e in dist_edges:
+            if self.graph.get_node(e.to_id).kind == NodeClass.FATAL:
+                return e
+
+            robustness = self.marking.get_marking(e.to_id)
+            if not robustness:
+                robustness = sys.maxsize
+
+            if robustness <= min_robustnes:
+                min_robustnes = robustness
+                min_edge = e
+
+        return min_edge
+
+
+class PeriodicDisturbancePlayer(DisturbancePlayer):
+    def __init__(self, player, graph, scale=2, loc=0):
+        super().__init__(player, graph)
+        self.counter = 0
+        self.scale = scale
+        self.loc = loc
+
+    def should_trigger(self):
+        prob = expon.cdf(self.counter, scale=self.scale, loc=self.loc)
+        trigger = random.uniform(0, 1) < prob
+
+        if trigger:
+            self.counter = 0
+        else:
+            self.counter += 1
+
+        return trigger
