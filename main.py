@@ -74,7 +74,7 @@ if __name__ == '__main__':
         DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, cutoff=5))
         ]
     pairs = generate_od_pairs(graph, marking, 5, min_distance=14)
-    executor = TestExecutor(graph, marking, tested_strategies, pairs, 0.2)
+    executor = TestExecutor(graph, marking, tested_strategies, pairs)
 
     results = executor.execute()
 
@@ -83,6 +83,6 @@ if __name__ == '__main__':
     for i in range(len(results[tested_strategies[0].__str__()])):
         for s in results.keys():
             print("Displaying " + str(i) + " " + s)
-            display_instance(graph, marking, path=results[s][i][3], title=s + ",Planned")
-            display_instance(graph, marking, path=results[s][i][4],
-                             title=s + ",Executed")
+            display_instance(graph, marking, path=results[s][i][4], title=s + ",Planned")
+            display_instance(graph, marking, path=results[s][i][5],
+                             title=s + "," + results[s][i][2])
