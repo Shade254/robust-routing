@@ -42,16 +42,16 @@ def generate_od_pairs(graph, marking, count, min_distance=2, min_risk=1,
     return pairs
 
 
-def output_to_csv(results, path="output.csv"):
+def output_to_csv(results, graph_path="UNKNOWN", path="output.csv"):
     existing = os.path.exists(path)
     with open(path, "a") as f:
         if not existing:
             f.write(
-                "Name,Function,Alpha,Beta,Start,End,DisturbancePlayer,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
+                "Graph,Name,Function,Alpha,Beta,Start,End,DisturbancePlayer,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
         for k in results.keys():
             for d, v in results[k].items():
                 for row in v:
-                    str = k
+                    str = graph_path + ',' + k
                     for entry in row:
                         if not isinstance(entry, Path):
                             if isinstance(entry, bool):

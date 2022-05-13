@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     results = executor.execute()
 
-    output_to_csv(results)
+    output_to_csv(results, graph_path=graph_path)
 
     for i in range(len(pairs)):
         for s in results.keys():
