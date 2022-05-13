@@ -125,8 +125,8 @@ def get_manhattan_distance(point1, point2):
     return abs(x1 - x2) + abs(y1 - y2)
 
 #convert decimal value to percentage in string format
-def get_percentage(value):
-    return str(value * 100) + "%"
+def get_percentage(value,round_to=2):
+    return str(round(value * 100,round_to)) + "%"
 
 def get_length_difference(string_path1, string_path2):
     return len(string_path1.split("-")) - len(string_path2.split("-"))
