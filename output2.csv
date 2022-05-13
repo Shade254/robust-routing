@@ -1,0 +1,4 @@
+strategy,success_rate,increase_in_planned_distance,increase_in_distance_with_wind,planned_robustness_increase,robustness_increase_with_wind
+SafestPath,94.6067415730337%,15.0%,47.0%,2.309,2.326
+ShortestLength,78.20224719101122%,0.0%,28.999999999999996%,0.0,0.069
+VectorSafePath,97.97752808988764%,56.00000000000001%,104.0%,7.487,7.365

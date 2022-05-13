@@ -72,7 +72,7 @@ if __name__ == '__main__':
         DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking))
         ]
     pairs = generate_od_pairs(graph, marking, 5, min_distance=14)
-    executor = TestExecutor(graph, marking, tested_strategies, pairs, 0)
+    executor = TestExecutor(graph, marking, tested_strategies, pairs, 0.2)
 
     results = executor.execute()
 

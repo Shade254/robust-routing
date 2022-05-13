@@ -163,17 +163,22 @@ def txt_to_graph(txt_path):
     file.close()
     return graph
 
+
+
 """
 Graphs are only created if, the graph is connected. If not, the function will return None.
 Below is an example of genereating a number of graphs.
 
-for i in range(5):
-    print(f'creating graph {i}')
-    counter = 1
-    while(True):
-        print(f'try {counter}')
-        graph = graph_builder(40,60,1000,5,f'test_cases/test_case_{i}.txt',False) 
-        counter += 1
-        if(graph != None):
-            break
+for i in range(95, 101):
+        num_of_fatal_nodes = round(7.07*i + 292.93)
+        
+        num_of_clusters = random.randint(1, 5)
+        counter = 0
+        while(True):
+            print(f'building graph: {i} try {counter}')
+            graph = graph_builder(50,50,num_of_fatal_nodes,num_of_clusters,f'test_cases_50/test_case_{i}.txt',ensure_connected=False)
+            if(graph != None):
+                break
+            else:
+                counter += 1
 """
