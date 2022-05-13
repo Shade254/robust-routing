@@ -53,8 +53,7 @@ def output_to_csv(results,path=None):
         existing = os.path.exists(filename)
         with open(filename, "a") as f:
             if not existing:
-                f.write("Name,Function,Alpha,Beta,Start,End,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
-                    #"Name,Function,Alpha,Beta,Start,End,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
+                f.write("Name,Function,Alpha,Beta,Start,End,DisturbancePlayer,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
             else :
                 f.write('\n')
             for row in v:

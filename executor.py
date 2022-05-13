@@ -4,12 +4,16 @@ from player import NormalPlayer, ProbabilisticDisturbancePlayer
 
 
 class TestExecutor:
-    def __init__(self, graph, marking, strategies, od_pairs, probability):
+    def __init__(self, graph, marking, strategies, od_pairs):
         self.graph = graph
         self.marking = marking
         self.strategies = strategies
         self.od_pairs = od_pairs
-        self.probability = probability
+
+    def get_dist_players(self, player, graph, marking):
+        return [
+            ProbabilisticDisturbancePlayer(player, graph, 0.2),
+            ]
 
     def execute(self):
         results = {}
@@ -27,22 +31,22 @@ class TestExecutor:
                 display_instance(self.graph, self.marking, s, None, None, tuple_d,
                                  title=s.__str__())
                 player = NormalPlayer(s, self.graph, self.marking, o, d)
-                dist_player = ProbabilisticDisturbancePlayer(player, self.graph,
-                                                             self.probability)
+                dist_players = self.get_dist_players(player, self.graph, self.marking)
+                for dist_player in dist_players:
+                    dist_player.reset(o, d)
+                    success = True
+                    while not player.is_at_goal():
+                        try:
+                            dist_player.take_action()
+                        except:
+                            success = False
+                            break
 
-                success = True
-                while not player.is_at_goal():
-                    try:
-                        dist_player.take_action()
-                    except:
-                        success = False
-                        break
-
-                results[s.__str__()].append((o, d, success,
-                                             Path(player.planned_path, self.graph,
-                                                  self.marking),
-                                             Path(player.executed_path, self.graph,
-                                                  self.marking)))
+                    results[s.__str__()].append((o, d, dist_player.__str__(), success,
+                                                 Path(player.planned_path, self.graph,
+                                                      self.marking),
+                                                 Path(player.executed_path, self.graph,
+                                                      self.marking)))
             i += 1
 
         return results
