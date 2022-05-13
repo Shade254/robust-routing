@@ -164,41 +164,65 @@ def txt_to_graph(txt_path):
     return graph
 
 
-import os
-graph_path = 'test_cases_30'
-graph_paths = []
+def is_graph_connected_from_txt(txt_path):
+    graph = txt_to_graph(txt_path)
+    x_size = graph_x_size(graph)
+    y_size = graph_y_size(graph)
+    fatal_nodes = count_fatal_nodes(graph,x_size,y_size)
+    return graph_is_connected(graph,x_size,y_size,fatal_nodes)
 
-graph = txt_to_graph(os.path.join(graph_path, 'graph.txt'))
-
-
-"""
-if os.path.isdir(graph_path):
-    graph_paths = [os.path.join(graph_path, x) for x in os.listdir(graph_path)]
-    counter = 1
-    for graph_path in graph_paths:
-        counter += 1
-        graph = txt_to_graph(graph_path)
-
-        if not graph_is_connected(graph,graph_x_size(graph),graph_y_size(graph),count_fatal_nodes(graph,graph_x_size(graph),graph_y_size(graph))):
-            print(f'Graph number {counter} is not connected')
-"""
+def is_folder_of_graphs_connected(folder_path):
+    import os
+    graph_path = folder_path
+    graph_paths = []
 
 
-
-"""
-Graphs are only created if, the graph is connected. If not, the function will return None.
-Below is an example of genereating a number of graphs.
-
-for i in range(95, 101):
-        num_of_fatal_nodes = round(7.07*i + 292.93)
-        
-        num_of_clusters = random.randint(1, 5)
+    if os.path.isdir(graph_path):
+        graph_paths = [os.path.join(graph_path, x) for x in os.listdir(graph_path)]
         counter = 0
-        while(True):
-            print(f'building graph: {i} try {counter}')
-            graph = graph_builder(50,50,num_of_fatal_nodes,num_of_clusters,f'test_cases_50/test_case_{i}.txt',ensure_connected=False)
-            if(graph != None):
-                break
-            else:
+        for graph_path in graph_paths:
+            graph = txt_to_graph(graph_path)
+            x_size = graph_x_size(graph)
+            y_size = graph_y_size(graph)
+            fatal_nodes = count_fatal_nodes(graph,x_size,y_size)
+
+            if not graph_is_connected(graph,x_size,y_size,fatal_nodes):
                 counter += 1
-"""
+                print(f'Graph number {graph_path} is not connected')
+
+        if counter == 0:
+            print('All graphs are connected')
+            return True
+        else:
+            print(f'{counter} graphs are not connected')
+            return False
+
+
+#Graphs are only created if, the graph is connected. If not, the function will return None.
+#Below is an example of genereating a number of graphs.
+def build_graphs(number_of_graphs,x_size,y_size):
+    for i in range(1, number_of_graphs+1):
+            if(x_size==50):
+                num_of_fatal_nodes = round(7.07*i + 292.93) #- for 50x50 graphs
+                num_of_clusters = random.randint(1,5)
+            else:
+                num_of_fatal_nodes = round(2.02*i + 97.98)
+                num_of_clusters = random.randint(20, 40)
+            
+            counter = 0
+            while(True):
+                print(f'building graph: {i} try {counter}')
+                graph = graph_builder(x_size,y_size,num_of_fatal_nodes,num_of_clusters,f'test_cases_{x_size}/test_case_{i}.txt',ensure_connected=False)
+                if(graph == None):
+                    counter += 1
+                    continue
+                x_size = graph_x_size(graph)
+                y_size = graph_y_size(graph)
+                fatal_nodes = count_fatal_nodes(graph,x_size,y_size)
+                if graph_is_connected(graph,x_size,y_size,fatal_nodes):
+                    break
+                else:
+                    counter += 1
+
+#build_graphs(100,30,30)
+is_folder_of_graphs_connected('test_cases_50')
