@@ -164,6 +164,26 @@ def txt_to_graph(txt_path):
     return graph
 
 
+import os
+graph_path = 'test_cases_30'
+graph_paths = []
+
+graph = txt_to_graph(os.path.join(graph_path, 'graph.txt'))
+
+
+"""
+if os.path.isdir(graph_path):
+    graph_paths = [os.path.join(graph_path, x) for x in os.listdir(graph_path)]
+    counter = 1
+    for graph_path in graph_paths:
+        counter += 1
+        graph = txt_to_graph(graph_path)
+
+        if not graph_is_connected(graph,graph_x_size(graph),graph_y_size(graph),count_fatal_nodes(graph,graph_x_size(graph),graph_y_size(graph))):
+            print(f'Graph number {counter} is not connected')
+"""
+
+
 
 """
 Graphs are only created if, the graph is connected. If not, the function will return None.
