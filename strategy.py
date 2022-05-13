@@ -113,7 +113,7 @@ class ShortestPathStrategy(RoutingStrategy):
         return e.cost
 
     def __str__(self):
-        return "ShortestPathStrategy"
+        return "RoutingStrategy,ShortestPath,,"
 
 
 class CombinedPathStrategy(RoutingStrategy):

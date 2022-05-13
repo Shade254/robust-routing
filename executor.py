@@ -1,7 +1,6 @@
-from graphics import display_instance
 from path import Path
 from player import MaliciousDisturbancePlayer, NormalPlayer, \
-    ProbabilisticDisturbancePlayer
+    PeriodicDisturbancePlayer, ProbabilisticDisturbancePlayer
 
 
 class TestExecutor:
@@ -14,7 +13,9 @@ class TestExecutor:
     def get_dist_players(self, player, graph, marking):
         return [
             ProbabilisticDisturbancePlayer(player, graph, 0.2),
-            MaliciousDisturbancePlayer(player, graph, 0.2, marking)
+            ProbabilisticDisturbancePlayer(player, graph, 0.6),
+            MaliciousDisturbancePlayer(player, graph, 0.2, marking),
+            PeriodicDisturbancePlayer(player, graph, 5, -1)
             ]
 
     def execute(self):
@@ -30,8 +31,8 @@ class TestExecutor:
                     results[s.__str__()] = {}
                 s.build_strategy(d)
                 tuple_d = (int(d.split(':')[1]), int(d.split(':')[0]))
-                display_instance(self.graph, self.marking, s, None, None, tuple_d,
-                                 title=s.__str__())
+                # display_instance(self.graph, self.marking, s, None, None, tuple_d,
+                #                  title=s.__str__())
                 player = NormalPlayer(s, self.graph, self.marking, o, d)
                 dist_players = self.get_dist_players(player, self.graph, self.marking)
                 for dist_player in dist_players:
