@@ -73,16 +73,21 @@ if __name__ == '__main__':
         DynamicProgrammingStrategy(graph, marking, SafestPathMetricV2(marking)),
         DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, cutoff=5))
         ]
-    pairs = generate_od_pairs(graph, marking, 5, min_distance=14)
+    pairs = generate_od_pairs(graph, marking, 2, min_distance=14)
     executor = TestExecutor(graph, marking, tested_strategies, pairs)
 
     results = executor.execute()
 
     output_to_csv(results)
 
-    for i in range(len(results[tested_strategies[0].__str__()])):
+    for i in range(len(pairs)):
         for s in results.keys():
-            print("Displaying " + str(i) + " " + s)
-            display_instance(graph, marking, path=results[s][i][4], title=s + ",Planned")
-            display_instance(graph, marking, path=results[s][i][5],
-                             title=s + "," + results[s][i][2])
+            planned = False
+            for d in results[s].keys():
+                print("Displaying " + str(i) + " " + s + " " + d)
+                if not planned:
+                    display_instance(graph, marking, path=results[s][d][i][3],
+                                     title=s + ",Planned")
+                    planned = True
+                display_instance(graph, marking, path=results[s][d][i][4],
+                                 title=s + "," + d)

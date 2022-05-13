@@ -98,8 +98,11 @@ class ProbabilisticDisturbancePlayer(DisturbancePlayer):
     def should_trigger(self):
         return random.uniform(0, 1) <= self.probability
 
+    def __str__(self):
+        return "ProbabilisticDisturbancePlayer" + str(self.probability)
 
-class ProbabilisticMaliciousDisturbancePlayer(ProbabilisticDisturbancePlayer):
+
+class MaliciousDisturbancePlayer(ProbabilisticDisturbancePlayer):
     def __init__(self, player, graph, probability, marking):
         super().__init__(player, graph, probability)
         self.marking = marking
@@ -123,6 +126,9 @@ class ProbabilisticMaliciousDisturbancePlayer(ProbabilisticDisturbancePlayer):
 
         return min_edge
 
+    def __str__(self):
+        return "MaliciousDisturbancePlayer" + str(self.probability)
+
 
 class PeriodicDisturbancePlayer(DisturbancePlayer):
     def __init__(self, player, graph, scale=2, loc=0):
@@ -141,3 +147,6 @@ class PeriodicDisturbancePlayer(DisturbancePlayer):
             self.counter += 1
 
         return trigger
+
+    def __str__(self):
+        return "PeriodicDisturbancePlayer"

@@ -105,7 +105,7 @@ class DynamicProgrammingStrategy(Strategy):
             self.strategy[k] = interim_result[k][1][0]
 
     def __str__(self):
-        return "DynamicProgrammingStrategy," + self.metric.__str__()
+        return "DynamicProgrammingStrategy," + self.metric.__str__() + ",,"
 
 
 class ShortestPathStrategy(RoutingStrategy):

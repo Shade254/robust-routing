@@ -1,7 +1,6 @@
 import os
 import random
 import sys
-import time
 
 from graph import NodeClass
 from path import Path
@@ -43,35 +42,33 @@ def generate_od_pairs(graph, marking, count, min_distance=2, min_risk=1,
     return pairs
 
 
-def output_to_csv(results,path=None):
-    for k, v in results.items():
-        time_stamp = time.strftime("%b_%d_%Y_%H_%M", time.localtime())
-        if path is None:
-            filename = k.split(",")[0] + "_" + time_stamp + ".csv"
-        else:
-            filename = path
-        existing = os.path.exists(filename)
-        with open(filename, "a") as f:
-            if not existing:
-                f.write("Name,Function,Alpha,Beta,Start,End,DisturbancePlayer,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
-            else :
-                f.write('\n')
-            for row in v:
-                str = k
-                for entry in row:
-                    if not isinstance(entry, Path):
-                        str += "," + entry.__str__()
-                    else:
-                        str += ","
-                        for n in entry.path_nodes:
-                            str += n + "-"
-                        str = str[:-1]
-                        str += ","
-                        for n in entry.path_marking:
-                            str += n.__str__() + "-"
-                        str = str[:-1]
-                str += '\n'
-                f.write(str)
+def output_to_csv(results, path="output.csv"):
+    existing = os.path.exists(path)
+    with open(path, "a") as f:
+        if not existing:
+            f.write(
+                "Name,Function,Alpha,Beta,Start,End,DisturbancePlayer,Success,PlannedPath,PlannedPathMarking,ExecutedPath,ExecutedPathMarking\n")
+        for k in results.keys():
+            for d, v in results[k].items():
+                for row in v:
+                    str = k
+                    for entry in row:
+                        if not isinstance(entry, Path):
+                            if isinstance(entry, bool):
+                                str += "," + d + "," + entry.__str__()
+                            else:
+                                str += "," + entry.__str__()
+                        else:
+                            str += ","
+                            for n in entry.path_nodes:
+                                str += n + "-"
+                            str = str[:-1]
+                            str += ","
+                            for n in entry.path_marking:
+                                str += n.__str__() + "-"
+                            str = str[:-1]
+                    str += '\n'
+                    f.write(str)
 
 
 def get_edge_direction(edge):
@@ -99,13 +96,15 @@ def get_succes_rate(list_of_bool):
 
     return sum / len(list_of_bool)
 
-#A function that calculates numbers of pairs in a string
-#Each pair is separated by a '-'
+
+# A function that calculates numbers of pairs in a string
+# Each pair is separated by a '-'
 def get_number_of_pairs(string):
     return len(string.split("-"))
 
-#average of a string of numbers
-#each number is separated by a '-'
+
+# average of a string of numbers
+# each number is separated by a '-'
 def get_avg_marking(string):
     list_of_numbers = string.split("-")
     sum = 0
@@ -114,8 +113,9 @@ def get_avg_marking(string):
             sum += int(i)
     return sum / len(list_of_numbers)
 
-#calculate the manhatten distance between two points
-#points written as X:Y
+
+# calculate the manhatten distance between two points
+# points written as X:Y
 def get_manhattan_distance(point1, point2):
     x1 = int(point1.split(":")[0])
     y1 = int(point1.split(":")[1])
@@ -123,9 +123,11 @@ def get_manhattan_distance(point1, point2):
     y2 = int(point2.split(":")[1])
     return abs(x1 - x2) + abs(y1 - y2)
 
-#convert decimal value to percentage in string format
+
+# convert decimal value to percentage in string format
 def get_percentage(value):
     return str(value * 100) + "%"
+
 
 def get_length_difference(string_path1, string_path2):
     return len(string_path1.split("-")) - len(string_path2.split("-"))
