@@ -9,6 +9,8 @@ from marking import Marking
 from strategy import CombinedPathStrategy, ShortestPathStrategy
 from utils import generate_od_pairs, output_to_csv
 
+import random
+
 
 def piecewise(x):
     if x < 6:
@@ -76,6 +78,10 @@ if __name__ == '__main__':
     if os.path.isdir(graph_path):
         graph_paths = [os.path.join(graph_path, x) for x in os.listdir(graph_path)]
 
+    list.sort(graph_paths,
+              key=lambda x: int(x.split("/")[-1].split(".")[-2].split("_")[-1]))
+    random.seed(42)
+
     for g in graph_paths:
         # ============== CREATING BASE GRAPH ===============
 
@@ -104,7 +110,7 @@ if __name__ == '__main__':
 
         results = executor.execute()
 
-        output_to_csv(results, graph_path=graph_path)
+        output_to_csv(results, graph_path=g, path="routing_1_1.csv")
 
         # for i in range(len(pairs)):
         #     for s in results.keys():

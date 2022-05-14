@@ -13,7 +13,7 @@ class TestExecutor:
     def get_dist_players(self, player, graph, marking):
         return [
             ProbabilisticDisturbancePlayer(player, graph, 0.2),
-            ProbabilisticDisturbancePlayer(player, graph, 0.6),
+            ProbabilisticDisturbancePlayer(player, graph, 0.5),
             MaliciousDisturbancePlayer(player, graph, 0.2, marking),
             PeriodicDisturbancePlayer(player, graph, 5, -1)
             ]
