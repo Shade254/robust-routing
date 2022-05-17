@@ -73,6 +73,8 @@ class VectorSafetyMetric(MarkingMetric):
         enums.extend(list(vector2.keys()))
         enums = set(enums)
 
+        enums = sorted(enums)
+
         for i in enums:
             if (i in vector2 and i not in vector1) or vector1[i] < vector2[i]:
                 return path1

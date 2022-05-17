@@ -1,16 +1,14 @@
 import getopt
 import math
 import os.path
-import sys
+import random
 
 from executor import TestExecutor
 from graph import Graph
 from marking import Marking
-from strategy import CombinedPathStrategy, ShortestPathStrategy, DynamicProgrammingStrategy
 from metrics import *
+from strategy import DynamicProgrammingStrategy, ShortestPathStrategy
 from utils import generate_od_pairs, output_to_csv
-
-import random
 
 
 def piecewise(x):
@@ -100,7 +98,7 @@ if __name__ == '__main__':
         marking = Marking(graph)
 
         # ================ RUN TEST =================
-        #tested_strategies = [
+        # tested_strategies = [
         #   ShortestPathStrategy(graph, marking),
         #   CombinedPathStrategy(graph, marking, 0.5, 6, lambda x: 1 / x, "1/x"),
         #   CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: sinus(x), "sinus"),
@@ -108,10 +106,10 @@ if __name__ == '__main__':
         #    ]
         tested_strategies = [
             ShortestPathStrategy(graph, marking),
-            DynamicProgrammingStrategy(graph, marking,SafestPathMetricV1(marking)),
-            DynamicProgrammingStrategy(graph, marking,SafestPathMetricV2(marking)),
-            DynamicProgrammingStrategy(graph, marking,VectorSafetyMetric(marking)),
-            DynamicProgrammingStrategy(graph, marking,VectorSafetyMetric(marking,7)),
+            DynamicProgrammingStrategy(graph, marking, SafestPathMetricV1(marking)),
+            DynamicProgrammingStrategy(graph, marking, SafestPathMetricV2(marking)),
+            DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking)),
+            DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, 7)),
             ]
         pairs = generate_od_pairs(graph, marking, od_number, min_distance=od_distance)
         executor = TestExecutor(graph, marking, tested_strategies, pairs)
