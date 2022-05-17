@@ -6,7 +6,8 @@ import sys
 from executor import TestExecutor
 from graph import Graph
 from marking import Marking
-from strategy import CombinedPathStrategy, ShortestPathStrategy
+from strategy import CombinedPathStrategy, ShortestPathStrategy, DynamicProgrammingStrategy
+from metrics import *
 from utils import generate_od_pairs, output_to_csv
 
 import random
@@ -99,18 +100,25 @@ if __name__ == '__main__':
         marking = Marking(graph)
 
         # ================ RUN TEST =================
+        #tested_strategies = [
+        #   ShortestPathStrategy(graph, marking),
+        #   CombinedPathStrategy(graph, marking, 0.5, 6, lambda x: 1 / x, "1/x"),
+        #   CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: sinus(x), "sinus"),
+        #   CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: piecewise(x), "7-x")
+        #    ]
         tested_strategies = [
             ShortestPathStrategy(graph, marking),
-            CombinedPathStrategy(graph, marking, 0.5, 6, lambda x: 1 / x, "1/x"),
-            CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: sinus(x), "sinus"),
-            CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: piecewise(x), "7-x")
+            DynamicProgrammingStrategy(graph, marking,SafestPathMetricV1(marking)),
+            DynamicProgrammingStrategy(graph, marking,SafestPathMetricV2(marking)),
+            DynamicProgrammingStrategy(graph, marking,VectorSafetyMetric(marking)),
+            DynamicProgrammingStrategy(graph, marking,VectorSafetyMetric(marking,7)),
             ]
         pairs = generate_od_pairs(graph, marking, od_number, min_distance=od_distance)
         executor = TestExecutor(graph, marking, tested_strategies, pairs)
 
         results = executor.execute()
 
-        output_to_csv(results, graph_path=g, path="routing_1_1.csv")
+        output_to_csv(results, graph_path=g, path="dynamic_1_1.csv")
 
         # for i in range(len(pairs)):
         #     for s in results.keys():

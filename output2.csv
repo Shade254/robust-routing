@@ -1,4 +1,21 @@
-strategy       ,success_rate       ,increase_in_planned_distance ,increase_in_distance_with_wind ,planned_robustness_increase ,robustness_increase_with_wind
-SafestPath     ,94.6067415730337%  ,15.0%                        ,47.0%                          ,                      2.309 ,                        2.326
-ShortestLength ,78.20224719101122% ,0.0%                         ,28.999999999999996%            ,                      0.0   ,                        0.069
-VectorSafePath ,97.97752808988764% ,56.00000000000001%           ,104.0%                         ,                      7.487 ,                        7.365
+strategy,disturbance_player,success_rate,increase_in_planned_distance,increase_in_distance_with_wind,planned_robustness,robustness_with_wind,planned_marking_increase,executed_marking_increase
+SafestPathV1,MaliciousDisturbancePlayer0.2,58.93%,14.98%,49.26%,3.26,3.486,0.503,0.375
+SafestPathV1,PeriodicDisturbancePlayer,63.04%,14.98%,89.06%,3.26,3.535,0.503,0.614
+SafestPathV1,ProbabilisticDisturbancePlayer0.2,77.68%,14.98%,48.59%,3.26,3.421,0.503,0.551
+SafestPathV1,ProbabilisticDisturbancePlayer0.5,59.29%,14.98%,139.16%,3.26,3.669,0.503,0.602
+SafestPathV2,MaliciousDisturbancePlayer0.2,54.82%,15.62%,53.57%,3.286,3.551,0.529,0.534
+SafestPathV2,PeriodicDisturbancePlayer,67.5%,15.62%,94.24%,3.286,3.533,0.529,0.619
+SafestPathV2,ProbabilisticDisturbancePlayer0.2,80.71%,15.62%,50.72%,3.286,3.403,0.529,0.584
+SafestPathV2,ProbabilisticDisturbancePlayer0.5,55.18%,15.62%,153.38%,3.286,3.667,0.529,0.668
+ShortestPath,MaliciousDisturbancePlayer0.2,82.32%,0.0%,22.04%,2.758,3.119,0.0,-0.069
+ShortestPath,PeriodicDisturbancePlayer,66.79%,0.0%,55.96%,2.758,3.269,0.0,0.106
+ShortestPath,ProbabilisticDisturbancePlayer0.2,61.61%,0.0%,26.01%,2.758,2.985,0.0,0.072
+ShortestPath,ProbabilisticDisturbancePlayer0.5,77.14%,0.0%,105.35%,2.758,3.488,0.0,0.271
+VectorSafePath,MaliciousDisturbancePlayer0.2,68.39%,57.95%,101.26%,4.6,4.502,1.842,1.609
+VectorSafePath,PeriodicDisturbancePlayer,89.46%,57.95%,162.42%,4.6,4.522,1.842,1.742
+VectorSafePath,ProbabilisticDisturbancePlayer0.2,94.64%,57.95%,105.83%,4.6,4.551,1.842,1.777
+VectorSafePath,ProbabilisticDisturbancePlayer0.5,67.5%,57.95%,252.02%,4.6,4.506,1.842,1.647
+VectorSafePathCut7,MaliciousDisturbancePlayer0.2,69.64%,56.5%,100.93%,4.521,4.36,1.763,1.493
+VectorSafePathCut7,PeriodicDisturbancePlayer,88.04%,56.5%,153.86%,4.521,4.464,1.763,1.651
+VectorSafePathCut7,ProbabilisticDisturbancePlayer0.2,94.29%,56.5%,102.94%,4.521,4.473,1.763,1.696
+VectorSafePathCut7,ProbabilisticDisturbancePlayer0.5,66.25%,56.5%,245.38%,4.521,4.508,1.763,1.618

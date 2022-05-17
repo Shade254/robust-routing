@@ -21,36 +21,44 @@ def save_csv(df, path):
 def get_row(df_dict, name, index):
     return df_dict[name].iloc[index]
 
+def get_first_row_of_df(df):
+    return df.iloc[0]
 
-def group_df_by_column(df, column_name, reset_index=True, drop_column=True):
-    grouped = df.groupby([column_name])
+def group_df_by_column(df, column_names, reset_index=True, drop_column=True):
+    grouped = df.groupby(column_names)
     groups_dict = {}
     for name, group in grouped:
+        print(name)
         if reset_index:
             group.reset_index(inplace=True, drop=True)
         if drop_column:
-            group.drop([column_name], axis=1, inplace=True)
+            group.drop(column_names, axis=1, inplace=True)
         groups_dict[name] = group
 
     return groups_dict
+
+def get_planned_path_of_strategy(df_dict, graph,function,disturbanceplayer,start,end):
+    df = df_dict[(function, disturbanceplayer)]
+    df_result = df.loc[(df['Graph'] == graph) & (df['Start'] == start) & (df['End'] == end)]
+    return get_first_row_of_df(df_result)
     
-output_columns = columns=['strategy','success_rate','increase_in_planned_distance','increase_in_distance_with_wind','planned_robustness','robustness_with_wind','planned_marking_increase','executed_marking_increase']
+
+output_columns = columns=['strategy','disturbance_player','success_rate','increase_in_planned_distance','increase_in_distance_with_wind','planned_robustness','robustness_with_wind','planned_marking_increase','executed_marking_increase']
 df_output = pd.DataFrame(columns=output_columns)
 
-df = read_csv("strategies_results.csv")
+df = read_csv("dynamic_1_1.csv")
+grouped_df_dict = group_df_by_column(df,['Function','DisturbancePlayer'])
 
-grouped_df_dict = group_df_by_column(df,'Function')
-print(get_row(grouped_df_dict, 'ShortestLength', 1))
-
-#TODO
-#add absolute value of planned marking and excecuted marking 
-#planned path and planned marking includes unsuccesfull 
+print(get_planned_path_of_strategy(grouped_df_dict, 'test_cases_30\\test_case_1.txt','ShortestPath','PeriodicDisturbancePlayer','25:1','4:18'))
 
 
-for name, group in grouped_df_dict.items():
-    print(name)
+for key, group in grouped_df_dict.items():
+    strategy = key[0]
+    disturbance_player = key[1]
+    print(f'{strategy} - {disturbance_player}')
     print(group)
-    succes_rate = group['Success'].value_counts(normalize=True).mul(100).iloc[0].astype(str)+'%'
+
+    succes_rate = round(group['Success'].value_counts(normalize=True).mul(100).iloc[0],2).astype(str)+'%'
     
     increase_in_length = 0
     executed_increase_in_length = 0
@@ -62,7 +70,7 @@ for name, group in grouped_df_dict.items():
     num_of_succesfull_runs = 0
 
     for index, row in group.iterrows():
-        shortest_path_data = get_row(grouped_df_dict, 'ShortestLength', index)
+        shortest_path_data = get_planned_path_of_strategy(grouped_df_dict, row['Graph'], 'ShortestPath',disturbance_player, row['Start'], row['End'])
         shortest_path_length = ut.get_number_of_pairs(shortest_path_data['PlannedPath'])
 
         planned_path_length = ut.get_number_of_pairs(row['PlannedPath'])
@@ -81,8 +89,8 @@ for name, group in grouped_df_dict.items():
             avg_executed_marking_inc += ut.get_avg_marking(row['ExecutedPathMarking'])-shortest_path_marking
       
 
-    increase_in_length = round(increase_in_length/num_of_elements(group),2)
-    executed_increase_in_length = round(executed_increase_in_length/num_of_succesfull_runs,2)
+    increase_in_length_str = ut.get_percentage(increase_in_length/num_of_elements(group),2)
+    executed_increase_in_length_str = ut.get_percentage(executed_increase_in_length/num_of_succesfull_runs,2)
 
     avg_planned_marking_abs = round(avg_planned_marking_abs/num_of_elements(group),3)
     avg_executed_marking_abs  = round(avg_executed_marking_abs/num_of_succesfull_runs,3)
@@ -90,7 +98,7 @@ for name, group in grouped_df_dict.items():
     avg_planned_marking_inc = round(avg_planned_marking_inc/num_of_elements(group),3)
     avg_executed_marking_inc = round(avg_executed_marking_inc/num_of_succesfull_runs, 3)
 
-    df_output.loc[len(df_output), df_output.columns] = [name, succes_rate, ut.get_percentage(increase_in_length), ut.get_percentage(executed_increase_in_length), avg_planned_marking_abs, avg_executed_marking_abs, avg_planned_marking_inc, avg_executed_marking_inc]
+    df_output.loc[len(df_output), df_output.columns] = [strategy, disturbance_player ,succes_rate, increase_in_length_str, executed_increase_in_length_str, avg_planned_marking_abs, avg_executed_marking_abs, avg_planned_marking_inc, avg_executed_marking_inc]
 
 save_csv(df_output, "output2.csv")
 print(df_output)
