@@ -4,12 +4,13 @@ import numpy as np
 from colour import Color
 from matplotlib import colors
 
+import utils
 from graph import EdgeClass, NodeClass
 from utils import get_edge_direction
 
 
 def display_instance(graph, marking, strategy=None, path=None, position=None, end=None,
-                     title=None):
+                     title="", wind_directions=None):
     if path:
         if not position:
             position = (
@@ -19,8 +20,31 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
             end = (int(path.path_nodes[-1].split(":")[1]),
                    int(path.path_nodes[-1].split(":")[0]))
     fig, ax = plt.subplots()
-    if position:
+    if position and not path:
         display_icon(ax, position, "icons/start.png")
+    elif path:
+        dir = utils.get_edge_direction(path.path_edges[0])
+        if dir == 'b':
+            display_icon(ax, position, "icons/down.png")
+        elif dir == 'u':
+            display_icon(ax, position, "icons/up.png")
+        elif dir == 'l':
+            display_icon(ax, position, "icons/left.png")
+        elif dir == 'r':
+            display_icon(ax, position, "icons/right.png")
+
+        dir = utils.get_edge_direction(path.path_edges[-1])
+        position = (
+            int(path.path_nodes[-2].split(":")[1]),
+            int(path.path_nodes[-2].split(":")[0]))
+        if dir == 'b':
+            display_icon(ax, position, "icons/down.png")
+        elif dir == 'u':
+            display_icon(ax, position, "icons/up.png")
+        elif dir == 'l':
+            display_icon(ax, position, "icons/left.png")
+        elif dir == 'r':
+            display_icon(ax, position, "icons/right.png")
     if end:
         if graph.get_node(str(end[1]) + ":" + str(end[0])).kind == NodeClass.FATAL:
             display_icon(ax, end, "icons/fatal.png")
@@ -28,13 +52,23 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
             display_icon(ax, end, "icons/end.png")
     ax = display_marking_grid(ax, graph, marking, strategy, show_numbers=False,
                               leave_out=[position, end])
+    if wind_directions:
+        title += "\nWind direction:"
+        if "r" in wind_directions:
+            title += "→"
+        if "l" in wind_directions:
+            title += "←"
+        if "b" in wind_directions:
+            title += "↓"
+        if "u" in wind_directions:
+            title += "↑"
     plt.title(title)
 
     if path:
         kind = path.path_edges[0].kind
         y = [int(path.path_nodes[0].split(":")[0])]
         x = [int(path.path_nodes[0].split(":")[1])]
-        for e in path.path_edges:
+        for e in path.path_edges[:-1]:
             if e.kind == kind:
                 y.append(int(e.to_id.split(":")[0]))
                 x.append(int(e.to_id.split(":")[1]))
@@ -59,7 +93,8 @@ def display_icon(ax, position, path):
     img = mpimg.imread(path)
     ax.imshow(img,
               extent=(
-              position[0] - 0.5, position[0] + 0.5, position[1] + 0.5, position[1] - 0.5),
+                  position[0] - 0.5, position[0] + 0.5, position[1] + 0.5,
+                  position[1] - 0.5),
               zorder=2)
 
 

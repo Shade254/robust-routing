@@ -128,7 +128,7 @@ class CombinedPathStrategy(RoutingStrategy):
     def cost_func(self, e, marking):
         risk_value = marking.get_marking(e.to_id)
         if not risk_value:
-            return sys.maxsize
+            risk_value = sys.maxsize
         return self.alpha * e.cost + self.beta * self.risk_function(risk_value)
 
     def __str__(self):
