@@ -77,9 +77,9 @@ if __name__ == '__main__':
     graph_paths = [graph_path]
     if os.path.isdir(graph_path):
         graph_paths = [os.path.join(graph_path, x) for x in os.listdir(graph_path)]
-
-    list.sort(graph_paths,
-              key=lambda x: int(x.split("/")[-1].split(".")[-2].split("_")[-1]))
+    if len(graph_paths) > 1:
+        list.sort(graph_paths,
+                  key=lambda x: int(x.split("/")[-1].split(".")[-2].split("_")[-1]))
     random.seed(42)
 
     for g in graph_paths:
