@@ -41,65 +41,160 @@ def get_planned_path_of_strategy(df_dict, graph,function,disturbanceplayer,start
     df_result = df.loc[(df['Graph'] == graph) & (df['Start'] == start) & (df['End'] == end)]
     return get_first_row_of_df(df_result)
     
+def get_path_avg_planned_robustness(df_row):
+    return ut.get_avg_marking(df_row['PlannedPathMarking'])
 
-output_columns = columns=['strategy','disturbance_player','success_rate','increase_in_planned_distance','increase_in_distance_with_wind','planned_robustness','robustness_with_wind','planned_marking_increase','executed_marking_increase']
-df_output = pd.DataFrame(columns=output_columns)
+def get_path_avg_executed_robustness(df_row):
+    return ut.get_avg_marking(df_row['ExecutedPathMarking'])
 
-df = read_csv("dynamic_1_1.csv")
-grouped_df_dict = group_df_by_column(df,['Function','DisturbancePlayer'])
+def get_path_planned_length(df_row):
+    return ut.get_number_of_pairs(df_row['PlannedPath'])
 
-#print(get_planned_path_of_strategy(grouped_df_dict, 'test_cases_30\\test_case_1.txt','ShortestPath','PeriodicDisturbancePlayer','25:1','4:18'))
+def get_path_executed_length(df_row):
+    return ut.get_number_of_pairs(df_row['ExecutedPathMarking'])
 
 
-for key, group in grouped_df_dict.items():
-    strategy = key[0]
-    disturbance_player = key[1]
-    print(f'{strategy} - {disturbance_player}')
-    #print(group)
+class Path_Data:
+    def __init__(self, df_row):
+        self.path_length = get_path_planned_length(df_row)
+        self.executed_length = get_path_executed_length(df_row)
+        self.avg_planned_robustness = get_path_avg_planned_robustness(df_row)
+        self.avg_executed_robustness = get_path_avg_executed_robustness(df_row)
+        self.success = df_row['Success']
 
-    succes_rate = round(group['Success'].value_counts(normalize=True).mul(100).iloc[0],2).astype(str)+'%'
-    
-    increase_in_length = 0
-    executed_increase_in_length = 0
-    avg_planned_marking_abs = 0
-    avg_executed_marking_abs = 0
-    avg_planned_marking_inc = 0
-    avg_executed_marking_inc = 0
-    
-    shortest_path_avg_marking_sum = 0
-    shortest_path_succ_avg_marking_sum = 0
+def process_test_results(input_file_path,output_file_path):    
+    df = read_csv(input_file_path)
 
-    num_of_succesfull_runs = 0
+    output_columns = columns=['Strategy',
+                              'Disturbance player',
+                              'Success rate',
+                              'Average planned path length',
+                              'Average executed successful path length',
+                              'Average executed unsuccessful path length',
+                              'Planned distance increase from shortest path',
+                              'Executed distance increase from shortest paths execution',
+                              'Executed distance increase from planned distance',
+                              'Average planned robustness',
+                              'Average robustness of succesfull executions',
+                              'Avg planned robustness as increase to shortest path',
+                              'Avg executed robustness as increase to planned path',
+                              'Average planned robustness of survived executions',
+                              'Average planned robustness of fatal executions',
+                              'Executions where executed and shortest path were both succesfull'
+                              ]
 
-    for index, row in group.iterrows():
-        shortest_path_data = get_planned_path_of_strategy(grouped_df_dict, row['Graph'], 'ShortestPath', disturbance_player, row['Start'], row['End'])
-        shortest_path_length = ut.get_number_of_pairs(shortest_path_data['PlannedPath'])
+    df_output = pd.DataFrame(columns=output_columns)
 
-        planned_path_length = ut.get_number_of_pairs(row['PlannedPath'])
-        executed_path_length = ut.get_number_of_pairs(row['ExecutedPath'])
-        increase_in_length += (planned_path_length - shortest_path_length)/shortest_path_length
-        
-        shortest_path_avg_marking = ut.get_avg_marking(shortest_path_data['PlannedPathMarking'])
+    grouped_df_dict = group_df_by_column(df,['Function','DisturbancePlayer'])
 
-        avg_planned_marking_abs += ut.get_avg_marking(row['PlannedPathMarking'])
-        avg_planned_marking_inc += ut.get_avg_marking(row['PlannedPathMarking'])-shortest_path_avg_marking
 
-        if row['Success'] == True:
-            num_of_succesfull_runs += 1
-            executed_increase_in_length += (executed_path_length - shortest_path_length)/shortest_path_length
-            avg_executed_marking_abs += ut.get_avg_marking(row['ExecutedPathMarking'])
-            avg_executed_marking_inc += ut.get_avg_marking(row['ExecutedPathMarking'])-shortest_path_avg_marking
+    for key, group in grouped_df_dict.items():
+        strategy = key[0]
+        disturbance_player = key[1]
+        print(f'{strategy} - {disturbance_player}')
 
-    increase_in_length_str = ut.get_percentage(increase_in_length/num_of_elements(group),3)
-    executed_increase_in_length_str = ut.get_percentage(executed_increase_in_length/num_of_succesfull_runs,3)
+        increase_in_planned_distance_to_shortest = 0     
+        executed_inc_in_distance_to_shortest_executed = 0  
+        executed_inc_in_distance_to_planned_distance = 0     
+        avg_planned_robustness_abs = 0      
+        avg_executed_robustness_abs = 0     
+        avg_planned_robustness_inc_to_shortest = 0      
+        avg_executed_marking_inc_to_planned = 0    
+        planned_robustness_of_suvivors = 0   
+        planned_robustness_of_unsuvivors = 0     
 
-    avg_planned_marking_abs = round(avg_planned_marking_abs/num_of_elements(group),3)
-    avg_executed_marking_abs  = round(avg_executed_marking_abs/num_of_succesfull_runs,3)
+        average_planned_path_length = 0
+        average_executed_successful_path_length = 0
+        average_executed_unsuccessful_path_length = 0
 
-    avg_planned_marking_inc = round(avg_planned_marking_inc/num_of_elements(group),3)
-    avg_executed_marking_inc = round(avg_executed_marking_inc/num_of_succesfull_runs,3)
+        num_of_succesfull_runs = 0
+        num_of_both_path_succesful = 0
+        num_of_unsuccesfull_runs = 0
 
-    df_output.loc[len(df_output), df_output.columns] = [strategy, disturbance_player ,succes_rate, increase_in_length_str, executed_increase_in_length_str, avg_planned_marking_abs, avg_executed_marking_abs, avg_planned_marking_inc, avg_executed_marking_inc]
+        for index, evaluated_path_row in group.iterrows():
+            #Get data of the shortest path
+            shortest_path_row = get_planned_path_of_strategy(grouped_df_dict, evaluated_path_row['Graph'], 'ShortestPath', disturbance_player, evaluated_path_row['Start'], evaluated_path_row['End'])
+            ShortestPath = Path_Data(shortest_path_row)
 
-save_csv(df_output, "output2.csv")
-print(df_output)
+            #Get data of the path that was executed
+            EvaluatedPath = Path_Data(evaluated_path_row)
+
+            increase_in_planned_distance_to_shortest += (EvaluatedPath.path_length - ShortestPath.path_length)/ShortestPath.path_length
+            average_planned_path_length += EvaluatedPath.path_length
+
+            avg_planned_robustness_abs += EvaluatedPath.avg_planned_robustness
+            avg_planned_robustness_inc_to_shortest += EvaluatedPath.avg_planned_robustness-ShortestPath.avg_planned_robustness
+
+            #Below is only calculated based on succesfull runs
+            if evaluated_path_row['Success'] == True:
+                num_of_succesfull_runs += 1
+
+                average_executed_successful_path_length += EvaluatedPath.executed_length
+
+                if ShortestPath.success:
+                    num_of_both_path_succesful += 1
+                    executed_inc_in_distance_to_shortest_executed += (EvaluatedPath.executed_length - ShortestPath.executed_length)/ShortestPath.executed_length
+
+                executed_inc_in_distance_to_planned_distance += (EvaluatedPath.executed_length - EvaluatedPath.path_length)/EvaluatedPath.path_length
+
+                planned_robustness_of_suvivors += EvaluatedPath.avg_planned_robustness
+                avg_executed_robustness_abs += EvaluatedPath.avg_executed_robustness
+                avg_executed_marking_inc_to_planned += EvaluatedPath.avg_executed_robustness-EvaluatedPath.avg_planned_robustness
+
+            else:
+                average_executed_unsuccessful_path_length += EvaluatedPath.executed_length
+
+                num_of_unsuccesfull_runs += 1
+                planned_robustness_of_unsuvivors += EvaluatedPath.avg_planned_robustness
+
+        succes_rate = ut.to_percentage(num_of_succesfull_runs/num_of_elements(group),2)
+
+        average_planned_path_length = round(average_planned_path_length/num_of_elements(group),2)
+        average_executed_successful_path_length = round(average_executed_successful_path_length/num_of_succesfull_runs,2)
+        average_executed_unsuccessful_path_length = round(average_executed_unsuccessful_path_length/num_of_unsuccesfull_runs,2)
+
+        increase_in_length_str = ut.to_percentage(increase_in_planned_distance_to_shortest/num_of_elements(group),2)
+        if num_of_both_path_succesful > 0:
+            executed_increase_in_length_str = ut.to_percentage(executed_inc_in_distance_to_shortest_executed/num_of_both_path_succesful,2)
+        else :
+            executed_increase_in_length_str = 0
+        executed_inc_in_distance_to_planned_distance_str = ut.to_percentage(executed_inc_in_distance_to_planned_distance/num_of_succesfull_runs,2)
+
+        avg_planned_robustness_abs = round(avg_planned_robustness_abs/num_of_elements(group),3)
+        avg_executed_robustness_abs  = round(avg_executed_robustness_abs/num_of_succesfull_runs,3)
+
+        avg_planned_robustness_inc_to_shortest = round(avg_planned_robustness_inc_to_shortest/num_of_elements(group),3)
+        avg_executed_marking_inc_to_planned = round(avg_executed_marking_inc_to_planned/num_of_succesfull_runs,3)
+
+        planned_robustness_of_suvivors = round(planned_robustness_of_suvivors/num_of_succesfull_runs,3)
+        planned_robustness_of_unsuvivors = round(planned_robustness_of_unsuvivors/num_of_unsuccesfull_runs,3)
+
+        df_output.loc[len(df_output), df_output.columns] = [
+            strategy, 
+            disturbance_player,
+            succes_rate, 
+            average_planned_path_length,
+            average_executed_successful_path_length,
+            average_executed_unsuccessful_path_length,
+            increase_in_length_str, 
+            executed_increase_in_length_str, 
+            executed_inc_in_distance_to_planned_distance_str,
+            avg_planned_robustness_abs, 
+            avg_executed_robustness_abs, 
+            avg_planned_robustness_inc_to_shortest, 
+            avg_executed_marking_inc_to_planned, 
+            planned_robustness_of_suvivors,
+            planned_robustness_of_unsuvivors,
+            num_of_both_path_succesful] 
+
+    save_csv(df_output, output_file_path)
+    print(df_output)
+
+import os
+graph_paths = []
+graph_paths = [os.path.join('test_raw_results', x) for x in os.listdir('test_raw_results')]
+for path in graph_paths:
+    test = path.split('\\')[1]
+    process_test_results(path,f'test_processed_results\{test}') 
+# path = 'dynamic_30_1_3.csv'
+# process_test_results(path,f'test_processed_results\{path}') 

@@ -9,6 +9,7 @@ from marking import Marking
 from metrics import *
 from strategy import DynamicProgrammingStrategy, ShortestPathStrategy
 from utils import generate_od_pairs, output_to_csv
+from graphics import display_instance
 
 
 def piecewise(x):
@@ -116,7 +117,7 @@ if __name__ == '__main__':
 
         results = executor.execute()
 
-        output_to_csv(results, graph_path=g, path="dynamic_1_1.csv")
+        output_to_csv(results, graph_path=g, path="dynamic_30_1_3.csv")
 
         # for i in range(len(pairs)):
         #     for s in results.keys():
@@ -125,7 +126,7 @@ if __name__ == '__main__':
         #             print("Displaying " + str(i) + " " + s + " " + d)
         #             if not planned:
         #                 display_instance(graph, marking, path=results[s][d][i][3],
-        #                                  title=s + ",Planned")
+        #                                   title=s + ",Planned")
         #                 planned = True
-        #             # display_instance(graph, marking, path=results[s][d][i][4],
-        #             #                  title=s + "," + d)
+        #                 display_instance(graph, marking, path=results[s][d][i][4],
+        #                     title=s + "," + d)
