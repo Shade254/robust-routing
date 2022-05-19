@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,6 +20,7 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
         if not end:
             end = (int(path.path_nodes[-1].split(":")[1]),
                    int(path.path_nodes[-1].split(":")[0]))
+    matplotlib.rcParams["figure.dpi"] = 300
     fig, ax = plt.subplots()
     if position and not path:
         display_icon(ax, position, "icons/start.png")
@@ -78,6 +80,7 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
                 y = [int(e.from_id.split(":")[0]), int(e.to_id.split(":")[0])]
                 x = [int(e.from_id.split(":")[1]), int(e.to_id.split(":")[1])]
         ax = plot_line(ax, x, y, kind)
+    fig.tight_layout()
     plt.show()
 
 
@@ -145,13 +148,14 @@ def display_marking_grid(ax, graph, marking, strategy=None, show_numbers=True,
     ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
     ax.set_xticks(np.arange(-.5, graph.max_column, 1))
     ax.set_yticks(np.arange(-.5, graph.max_row, 1))
+    plt.tick_params(labelleft=False, left=False, labelbottom=False, bottom=False)
     for y in range(0, graph.max_row + 1):
         for x in range(0, graph.max_column + 1):
             id_str = str(y) + ":" + str(x)
             if graph.get_node(id_str) and graph.get_node(id_str).kind == NodeClass.FATAL:
                 if (x, y) in leave_out:
                     continue
-                text = ax.text(x, y, "X", ha="center", va="center", color="black")
+                text = ax.text(x, y, "x", ha="center", va="center", color="black")
 
     if show_numbers and strategy:
         print("Cannot display both numbers and strategy")
