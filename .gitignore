@@ -3,3 +3,5 @@ __pycache__/*
 node.txt
 test_raw_results/*
 test_processed_results/*
+ffm_test_results*
+other_test_results*

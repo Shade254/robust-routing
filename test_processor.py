@@ -196,5 +196,5 @@ graph_paths = [os.path.join('test_raw_results', x) for x in os.listdir('test_raw
 for path in graph_paths:
     test = path.split('\\')[1]
     process_test_results(path,f'test_processed_results\{test}') 
-# path = 'dynamic_30_1_3.csv'
-# process_test_results(path,f'test_processed_results\{path}') 
+# path = 'other_test_results\cutoff_50.csv'
+# process_test_results(path,f'test_processed_results\cutoff_50.csv')
