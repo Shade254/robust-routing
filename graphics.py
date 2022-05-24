@@ -1,60 +1,87 @@
+import os
+
 import matplotlib
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 from colour import Color
 from matplotlib import colors
+from matplotlib.axes import Axes
 
 import utils
-from graph import EdgeClass, NodeClass
+from graph import EdgeClass, Graph, NodeClass
+from marking import Marking
+from path import Path
+from strategy import Strategy
 from utils import get_edge_direction
 
 
-def display_instance(graph, marking, strategy=None, path=None, position=None, end=None,
-                     title="", wind_directions=None):
+def generate_filename(graph: Graph, strategy: Strategy, path: Path,
+                      output_folder="./output/", strategy_name=None,
+                      dist_name=None):
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+    file_path = output_folder + graph.name
+    if strategy:
+        file_path += "_" + strategy.name + "_strategy.png"
     if path:
-        if not position:
-            position = (
-                int(path.path_nodes[0].split(":")[1]),
-                int(path.path_nodes[0].split(":")[0]))
-        if not end:
-            end = (int(path.path_nodes[-1].split(":")[1]),
-                   int(path.path_nodes[-1].split(":")[0]))
-    matplotlib.rcParams["figure.dpi"] = 300
+        if strategy_name:
+            file_path += "_" + strategy_name
+
+        if True in (edge.kind == EdgeClass.DISTURBANCE for edge in path.path_edges):
+            if dist_name:
+                file_path += "_" + dist_name
+            file_path += "_executed.png"
+        else:
+            file_path += "_planned.png"
+    return file_path
+
+
+def display_instance(graph: Graph, marking: Marking, strategy=None, path=None,
+                     position=None, goal=None,
+                     title="", display=True, save=False,
+                     strategy_name=None, dist_name=None):
+
+    if not display and not save:
+        return
+
+    matplotlib.rcParams["figure.dpi"] = 240
     fig, ax = plt.subplots()
-    if position and not path:
+
+    if position:
         display_icon(ax, position, "icons/start.png")
-    elif path:
+
+    if goal:
+        display_icon(ax, goal, "icons/end.png")
+
+    if path:
         dir = utils.get_edge_direction(path.path_edges[0])
         if dir == 'b':
-            display_icon(ax, position, "icons/down.png")
+            display_icon(ax, path.path_nodes[0], "icons/down.png")
         elif dir == 'u':
-            display_icon(ax, position, "icons/up.png")
+            display_icon(ax, path.path_nodes[0], "icons/up.png")
         elif dir == 'l':
-            display_icon(ax, position, "icons/left.png")
+            display_icon(ax, path.path_nodes[0], "icons/left.png")
         elif dir == 'r':
-            display_icon(ax, position, "icons/right.png")
+            display_icon(ax, path.path_nodes[0], "icons/right.png")
 
         dir = utils.get_edge_direction(path.path_edges[-1])
-        position = (
-            int(path.path_nodes[-2].split(":")[1]),
-            int(path.path_nodes[-2].split(":")[0]))
         if dir == 'b':
-            display_icon(ax, position, "icons/down.png")
+            display_icon(ax, path.path_nodes[-2], "icons/down.png")
         elif dir == 'u':
-            display_icon(ax, position, "icons/up.png")
+            display_icon(ax, path.path_nodes[-2], "icons/up.png")
         elif dir == 'l':
-            display_icon(ax, position, "icons/left.png")
+            display_icon(ax, path.path_nodes[-2], "icons/left.png")
         elif dir == 'r':
-            display_icon(ax, position, "icons/right.png")
-    if end:
-        if graph.get_node(str(end[1]) + ":" + str(end[0])).kind == NodeClass.FATAL:
-            display_icon(ax, end, "icons/fatal.png")
-        else:
-            display_icon(ax, end, "icons/end.png")
+            display_icon(ax, path.path_nodes[-2], "icons/right.png")
+
+        if graph.get_node(path.path_nodes[-1]).kind == NodeClass.FATAL:
+            display_icon(ax, path.path_nodes[-1], "icons/fatal.png")
+
     ax = display_marking_grid(ax, graph, marking, strategy, show_numbers=False,
-                              leave_out=[position, end])
-    if wind_directions:
+                              leave_out=[position, goal])
+    if "_" in graph.name:
+        wind_directions = graph.name.split("_")[-1]
         title += "\nWind direction:"
         if "r" in wind_directions:
             title += "→"
@@ -81,10 +108,17 @@ def display_instance(graph, marking, strategy=None, path=None, position=None, en
                 x = [int(e.from_id.split(":")[1]), int(e.to_id.split(":")[1])]
         ax = plot_line(ax, x, y, kind)
     fig.tight_layout()
-    plt.show()
+
+    if save:
+        filepath = generate_filename(graph, strategy, path, strategy_name=strategy_name,
+                                     dist_name=dist_name)
+        print("Saving " + filepath)
+        plt.savefig(filepath)
+    if display:
+        plt.show()
 
 
-def plot_line(ax, xs, ys, kind):
+def plot_line(ax: Axes, xs, ys, kind: EdgeClass):
     color = "blue"
     if kind == EdgeClass.DISTURBANCE:
         color = "purple"
@@ -92,8 +126,9 @@ def plot_line(ax, xs, ys, kind):
     return ax
 
 
-def display_icon(ax, position, path):
-    img = mpimg.imread(path)
+def display_icon(ax: Axes, position, file_path):
+    position = (int(position.split(":")[1]), int(position.split(":")[0]))
+    img = mpimg.imread(file_path)
     ax.imshow(img,
               extent=(
                   position[0] - 0.5, position[0] + 0.5, position[1] + 0.5,
@@ -101,7 +136,8 @@ def display_icon(ax, position, path):
               zorder=2)
 
 
-def display_marking_grid(ax, graph, marking, strategy=None, show_numbers=True,
+def display_marking_grid(ax: Axes, graph: Graph, marking: Marking, strategy=None,
+                         show_numbers=True,
                          leave_out=[]):
     max_marking = 0
     grid_array = []
@@ -164,19 +200,20 @@ def display_marking_grid(ax, graph, marking, strategy=None, show_numbers=True,
     if show_numbers:
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                if (j, i) in leave_out:
+                if str(j) + ":" + str(i) in leave_out:
                     continue
                 label = data[i, j] - 1
                 if label == max_marking + 1:
                     label = "∞"
-                text = ax.text(j, i, label, ha="center", va="center", color="black")
+                if label != 0:
+                    text = ax.text(j, i, label, ha="center", va="center", color="black")
 
     if strategy:
         for y in range(0, graph.max_row + 1):
             for x in range(0, graph.max_column + 1):
-                if (x, y) in leave_out:
-                    continue
                 id_str = str(y) + ":" + str(x)
+                if id_str in leave_out:
+                    continue
                 if graph.get_node(id_str) and graph.get_node(
                         id_str).kind == NodeClass.FATAL:
                     continue

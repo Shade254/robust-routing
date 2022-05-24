@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from enum import Enum
 
@@ -26,8 +27,6 @@ class Edge:
     cost: int
     kind: EdgeClass
 
-    
-
 
 class Graph:
     def __init__(self, path_to_graph):
@@ -35,6 +34,7 @@ class Graph:
         self.num_of_disturbance_edges = 0
         self.max_row = 0
         self.max_column = 0
+        self.name = os.path.basename(path_to_graph).split(".")[0]
         self.__node_map = {}
         self.__normal_edge_map = {}
         self.__disturbance_edge_map = {}
@@ -193,6 +193,8 @@ class Graph:
         vectors = []
         if len(direction) == 0:
             return
+
+        self.name += "_" + direction
 
         if 'u' in direction:
             vectors.append([-1, 0])

@@ -1,13 +1,22 @@
 import collections
 import sys
 
+from marking import Marking
+
 
 class Metric:
+    def __init__(self):
+        self.name = "metric"
+
     def choose(self, path1, path2):
         pass
 
 
 class ShortestPathMetric(Metric):
+    def __init__(self):
+        super().__init__()
+        self.name = "shortest"
+
     def choose(self, path1, path2):
         if len(path1) < len(path2):
             return path1
@@ -18,7 +27,9 @@ class ShortestPathMetric(Metric):
 
 
 class MarkingMetric(Metric):
-    def __init__(self, marking):
+    def __init__(self, marking: Marking):
+        super().__init__()
+        self.name = "marking"
         self.marking = marking
 
     def _get_markings(self, path, use_from=False):
@@ -38,8 +49,11 @@ class MarkingMetric(Metric):
 
 
 class VectorSafetyMetric(MarkingMetric):
-    def __init__(self, marking, cutoff=None):
+    def __init__(self, marking: Marking, cutoff=None):
         super().__init__(marking)
+        self.name = "vector"
+        if cutoff:
+            self.name += str(cutoff)
         self.cutoff = cutoff
 
     def choose(self, path1, path2):
@@ -91,8 +105,9 @@ class VectorSafetyMetric(MarkingMetric):
 
 
 class SafestPathMetric(MarkingMetric):
-    def __init__(self, marking, use_from):
+    def __init__(self, marking: Marking, use_from):
         super().__init__(marking)
+        self.name = "safest"
         self.use_from = use_from
 
     def choose(self, path1, path2):
@@ -113,6 +128,7 @@ class SafestPathMetric(MarkingMetric):
 class SafestPathMetricV1(SafestPathMetric):
     def __init__(self, marking):
         super().__init__(marking, use_from=True)
+        self.name = "safestV1"
 
     def __str__(self):
         return "SafestPathV1"
@@ -121,6 +137,7 @@ class SafestPathMetricV1(SafestPathMetric):
 class SafestPathMetricV2(SafestPathMetric):
     def __init__(self, marking):
         super().__init__(marking, use_from=False)
+        self.name = "safestV2"
 
     def __str__(self):
         return "SafestPathV2"

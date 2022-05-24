@@ -1,3 +1,4 @@
+from graphics import display_instance
 from path import Path
 from player import MaliciousDisturbancePlayer, NormalPlayer, \
     PeriodicDisturbancePlayer, ProbabilisticDisturbancePlayer
@@ -18,7 +19,8 @@ class TestExecutor:
             PeriodicDisturbancePlayer(player, graph, 5, -1)
             ]
 
-    def execute(self):
+    def execute(self, show_strategy=False, show_planned=False, show_executed=False,
+                save=False, display=False):
         results = {}
         i = 0
         for o, d in self.od_pairs:
@@ -30,28 +32,43 @@ class TestExecutor:
                 if s.__str__() not in results:
                     results[s.__str__()] = {}
                 s.build_strategy(d)
-                tuple_d = (int(d.split(':')[1]), int(d.split(':')[0]))
-                # display_instance(self.graph, self.marking, s, None, None, tuple_d,
-                #                  title=s.__str__())
-                player = NormalPlayer(s, self.graph, self.marking, o, d)
-                dist_players = self.get_dist_players(player, self.graph, self.marking)
-                for dist_player in dist_players:
-                    dist_player.reset(o, d)
-                    success = True
-                    while not player.is_at_goal():
-                        try:
-                            dist_player.take_action()
-                        except:
-                            success = False
-                            break
-                    if dist_player.__str__() not in results[s.__str__()]:
-                        results[s.__str__()][dist_player.__str__()] = []
-                    results[s.__str__()][dist_player.__str__()].append((
-                        o, d, success,
-                        Path(player.planned_path, self.graph,
-                             self.marking),
-                        Path(player.executed_path, self.graph,
-                             self.marking)))
+                if show_strategy:
+                    display_instance(self.graph, self.marking, strategy=s, path=None,
+                                     position=None, goal=d, save=save, display=display)
+                    player = NormalPlayer(s, self.graph, self.marking, o, d)
+                    dist_players = self.get_dist_players(player, self.graph, self.marking)
+
+                    planned = Path(player.planned_path, self.graph,
+                                   self.marking)
+
+                    if show_planned:
+                        display_instance(self.graph, self.marking,
+                                         path=planned, goal=d,
+                                         display=display, save=save,
+                                         strategy_name=s.name)
+
+                    for dist_player in dist_players:
+                        dist_player.reset(o, d)
+                        success = True
+                        while not player.is_at_goal():
+                            try:
+                                dist_player.take_action()
+                            except:
+                                success = False
+                                break
+                        if dist_player.__str__() not in results[s.__str__()]:
+                            results[s.__str__()][dist_player.__str__()] = []
+                        executed = Path(player.executed_path, self.graph,
+                                        self.marking)
+                        results[s.__str__()][dist_player.__str__()].append(
+                            (o, d, success, planned, executed))
+
+                        if show_executed:
+                            display_instance(self.graph, self.marking, path=executed,
+                                             goal=d,
+                                             display=display, save=save,
+                                             strategy_name=s.name,
+                                             dist_name=dist_player.name)
             i += 1
 
         return results

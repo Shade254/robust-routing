@@ -14,6 +14,7 @@ class Player:
         self._goal = None
         self.planned_path = None
         self.executed_path = None
+        self.name = "player"
 
     def take_action(self):
         pass
@@ -32,6 +33,7 @@ class NormalPlayer(Player):
         self.marking = marking
         self.strategy = strategy
         self.reset(start, goal)
+        self.name = "normal"
 
     def take_action(self):
         if self.graph.get_node(self._current).kind == NodeClass.FATAL:
@@ -58,6 +60,7 @@ class DisturbancePlayer(Player):
         self.graph = graph
         self.planned_path = player.planned_path
         self.executed_path = player.executed_path
+        self.name = "disturbance"
 
     def is_at_goal(self) -> bool:
         return self.player.is_at_goal()
@@ -83,7 +86,7 @@ class DisturbancePlayer(Player):
             disturbance_move = self.pick_disturbance(current)
             self.player._current = disturbance_move.to_id
             self.player.executed_path[-1] = disturbance_move
-            self.planned_path = self.player.executed_path
+            self.planned_path = self.player.planned_path
             return disturbance_move
 
         self.executed_path = self.player.executed_path
@@ -94,6 +97,7 @@ class ProbabilisticDisturbancePlayer(DisturbancePlayer):
     def __init__(self, player: Player, graph: Graph, probability):
         super().__init__(player, graph)
         self.probability = probability
+        self.name = "prob" + str(probability)
 
     def should_trigger(self):
         return random.uniform(0, 1) <= self.probability
@@ -103,9 +107,10 @@ class ProbabilisticDisturbancePlayer(DisturbancePlayer):
 
 
 class MaliciousDisturbancePlayer(ProbabilisticDisturbancePlayer):
-    def __init__(self, player, graph, probability, marking):
+    def __init__(self, player: Player, graph: Graph, probability, marking: Marking):
         super().__init__(player, graph, probability)
         self.marking = marking
+        self.name = "malicious"
 
     def pick_disturbance(self, node):
         dist_edges = self.graph.get_out_edges(node, EdgeClass.DISTURBANCE)
@@ -131,11 +136,12 @@ class MaliciousDisturbancePlayer(ProbabilisticDisturbancePlayer):
 
 
 class PeriodicDisturbancePlayer(DisturbancePlayer):
-    def __init__(self, player, graph, scale=2, loc=0):
+    def __init__(self, player: Player, graph: Graph, scale=2, loc=0):
         super().__init__(player, graph)
         self.counter = 0
         self.scale = scale
         self.loc = loc
+        self.name = "exp_" + str(scale) + "_" + str(loc)
 
     def should_trigger(self):
         prob = expon.cdf(self.counter, scale=self.scale, loc=self.loc)

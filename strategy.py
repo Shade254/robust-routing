@@ -3,6 +3,7 @@ from queue import PriorityQueue
 
 from graph import EdgeClass, Graph, NodeClass
 from marking import Marking
+from metrics import Metric
 
 
 class Strategy:
@@ -10,6 +11,7 @@ class Strategy:
         self.strategy = {}
         self.graph = graph
         self.marking = marking
+        self.name = "strategy"
 
     def get_move(self, node):
         if node in self.strategy:
@@ -35,6 +37,7 @@ class Strategy:
 class RoutingStrategy(Strategy):
     def __init__(self, graph: Graph, marking: Marking):
         super().__init__(graph, marking)
+        self.name = "routing"
 
     def build_strategy(self, goal_node_id):
         if not goal_node_id:
@@ -65,9 +68,10 @@ class RoutingStrategy(Strategy):
 
 
 class DynamicProgrammingStrategy(Strategy):
-    def __init__(self, graph, marking, metric):
+    def __init__(self, graph: Graph, marking: Marking, metric: Metric):
         super().__init__(graph, marking)
         self.metric = metric
+        self.name = "dynamic_" + metric.name
 
     def build_strategy(self, goal_node_id):
         interim_result = {goal_node_id: (0, [])}
@@ -78,7 +82,7 @@ class DynamicProgrammingStrategy(Strategy):
             for k, v in interim_result.items():
                 if v[0] == round - 1:
                     to_process.append(k)
-            print(to_process)
+
             if len(to_process) == 0:
                 break
 
@@ -109,6 +113,10 @@ class DynamicProgrammingStrategy(Strategy):
 
 
 class ShortestPathStrategy(RoutingStrategy):
+    def __init__(self, graph: Graph, marking: Marking):
+        super().__init__(graph, marking)
+        self.name += "_shortest"
+
     def cost_func(self, e, marking):
         return e.cost
 
@@ -124,6 +132,7 @@ class CombinedPathStrategy(RoutingStrategy):
         self.beta = beta
         self.risk_function = risk_function
         self.risk_function_name = risk_function_name
+        self.name += "_" + risk_function_name
 
     def cost_func(self, e, marking):
         risk_value = marking.get_marking(e.to_id)

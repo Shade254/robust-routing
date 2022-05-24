@@ -5,11 +5,10 @@ import random
 
 from executor import TestExecutor
 from graph import Graph
-from marking import Marking
 from metrics import *
-from strategy import DynamicProgrammingStrategy, ShortestPathStrategy
+from strategy import DynamicProgrammingStrategy, \
+    ShortestPathStrategy
 from utils import generate_od_pairs, output_to_csv
-from graphics import display_instance
 
 
 def piecewise(x):
@@ -40,7 +39,7 @@ if __name__ == '__main__':
     graph_path = None
 
     # up, bottom, right, left
-    direction = "ubrl"
+    direction = ""
 
     min_force = 1
     max_force = 1
@@ -97,36 +96,19 @@ if __name__ == '__main__':
         # ======== MARKING NODES BY FATAL DISTANCE =========
 
         marking = Marking(graph)
+        # display_instance(graph, marking)
 
         # ================ RUN TEST =================
-        # tested_strategies = [
-        #   ShortestPathStrategy(graph, marking),
-        #   CombinedPathStrategy(graph, marking, 0.5, 6, lambda x: 1 / x, "1/x"),
-        #   CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: sinus(x), "sinus"),
-        #   CombinedPathStrategy(graph, marking, 0.5, 1, lambda x: piecewise(x), "7-x")
-        #    ]
+
         tested_strategies = [
             ShortestPathStrategy(graph, marking),
-            DynamicProgrammingStrategy(graph, marking, SafestPathMetricV1(marking)),
-            DynamicProgrammingStrategy(graph, marking, SafestPathMetricV2(marking)),
             DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking)),
             DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, 7)),
             ]
         pairs = generate_od_pairs(graph, marking, od_number, min_distance=od_distance)
         executor = TestExecutor(graph, marking, tested_strategies, pairs)
 
-        results = executor.execute()
+        results = executor.execute(show_strategy=True, show_planned=True, display=False,
+                                   save=True)
 
-        output_to_csv(results, graph_path=g, path="dynamic_30_1_3.csv")
-
-        # for i in range(len(pairs)):
-        #     for s in results.keys():
-        #         planned = False
-        #         for d in results[s].keys():
-        #             print("Displaying " + str(i) + " " + s + " " + d)
-        #             if not planned:
-        #                 display_instance(graph, marking, path=results[s][d][i][3],
-        #                                   title=s + ",Planned")
-        #                 planned = True
-        #                 display_instance(graph, marking, path=results[s][d][i][4],
-        #                     title=s + "," + d)
+        output_to_csv(results, graph_path=g, path="raw_results.csv")
