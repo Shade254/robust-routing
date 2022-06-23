@@ -17,11 +17,15 @@ from utils import get_edge_direction
 
 
 def generate_filename(graph: Graph, strategy: Strategy, path: Path,
-                      output_folder="./output/", strategy_name=None,
+                      position=None, goal=None, output_folder="./output/", strategy_name=None,
                       dist_name=None):
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
     file_path = output_folder + graph.name
+    if position:
+        file_path += "_" + position
+    if goal:
+        file_path += "_" + goal
     if strategy:
         file_path += "_" + strategy.name + "_strategy.png"
     if path:
@@ -40,8 +44,7 @@ def generate_filename(graph: Graph, strategy: Strategy, path: Path,
 def display_instance(graph: Graph, marking: Marking, strategy=None, path=None,
                      position=None, goal=None,
                      title="", display=True, save=False,
-                     strategy_name=None, dist_name=None):
-
+                     strategy_name=None, dist_name=None, show_numbers=False):
     if not display and not save:
         return
 
@@ -78,7 +81,7 @@ def display_instance(graph: Graph, marking: Marking, strategy=None, path=None,
         if graph.get_node(path.path_nodes[-1]).kind == NodeClass.FATAL:
             display_icon(ax, path.path_nodes[-1], "icons/fatal.png")
 
-    ax = display_marking_grid(ax, graph, marking, strategy, show_numbers=False,
+    ax = display_marking_grid(ax, graph, marking, strategy, show_numbers=show_numbers,
                               leave_out=[position, goal])
     if "_" in graph.name:
         wind_directions = graph.name.split("_")[-1]
@@ -110,12 +113,14 @@ def display_instance(graph: Graph, marking: Marking, strategy=None, path=None,
     fig.tight_layout()
 
     if save:
-        filepath = generate_filename(graph, strategy, path, strategy_name=strategy_name,
+        filepath = generate_filename(graph, strategy, path, position, goal, strategy_name=strategy_name,
                                      dist_name=dist_name)
         print("Saving " + filepath)
         plt.savefig(filepath)
     if display:
         plt.show()
+
+    plt.close()
 
 
 def plot_line(ax: Axes, xs, ys, kind: EdgeClass):

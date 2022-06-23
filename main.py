@@ -5,9 +5,10 @@ import random
 
 from executor import TestExecutor
 from graph import Graph
+from graphics import display_instance
 from metrics import *
 from strategy import DynamicProgrammingStrategy, \
-    ShortestPathStrategy
+    ShortestPathStrategy, CombinedPathStrategy
 from utils import generate_od_pairs, output_to_csv
 
 
@@ -31,9 +32,11 @@ if __name__ == '__main__':
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "hg:d:f:n:l:")
-    except:
-        print("Cannot load input arguments")
+        opts, args = getopt.getopt(argv, "pshg:d:f:n:l:a:b:",
+                                   ["graph=", "direction=", "count=", "length=", "force=", "origin=", "destination=",
+                                    "save", "display", "help"])
+    except Exception as e:
+        print("Cannot load input arguments: " + e.__str__())
         sys.exit(1)
 
     graph_path = None
@@ -47,20 +50,34 @@ if __name__ == '__main__':
     od_distance = 10
     od_number = 5
 
+    save = False
+    display = False
+
+    a = None
+    b = None
+
     for opt, arg in opts:
-        if opt in ['-g']:
+        if opt in ['-g', "--graph"]:
             graph_path = arg
-        elif opt in ['-d']:
+        elif opt in ['-d', "--direction"]:
             direction = arg
-        elif opt in ['-n']:
+        elif opt in ['-n', "--count"]:
             od_number = int(arg)
-        elif opt in ['-l']:
+        elif opt in ['-l', "--length"]:
             od_distance = int(arg)
-        elif opt in ['-f']:
+        elif opt in ['-f', "--force"]:
             force = arg.split("-")
             min_force = int(force[0])
             max_force = int(force[1])
-        elif opt in ['-h']:
+        elif opt in ['-s', "--save"]:
+            save = True
+        elif opt in ['-p', "--display"]:
+            display = True
+        elif opt in ['-a', "--origin"]:
+            a = arg
+        elif opt in ['-b', "--destination"]:
+            b = arg
+        elif opt in ['-h', "--help"]:
             print("Usage:")
             print("-g path to txt file with graph (required)")
             print("-d direction of possible disturbances (default - ubrl [means up, "
@@ -96,19 +113,26 @@ if __name__ == '__main__':
         # ======== MARKING NODES BY FATAL DISTANCE =========
 
         marking = Marking(graph)
-        # display_instance(graph, marking)
+        display_instance(graph, marking, display=display, save=save, show_numbers=True)
 
         # ================ RUN TEST =================
 
         tested_strategies = [
             ShortestPathStrategy(graph, marking),
+            CombinedPathStrategy(graph, marking, 1, 6, lambda x : 1/x, "1:x"),
+            # CombinedPathStrategy(graph, marking, 1, 1, lambda x : sinus(x), "sin"),
             DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking)),
-            DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, 7)),
-            ]
-        pairs = generate_od_pairs(graph, marking, od_number, min_distance=od_distance)
+            #DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, 7)),
+            # DynamicProgrammingStrategy(graph, marking, SafestPathMetricV1(marking)),
+            # DynamicProgrammingStrategy(graph, marking, SafestPathMetricV2(marking)),
+        ]
+        if a and graph.get_node(a) and b and graph.get_node(b):
+            pairs = [(a, b)]
+        else:
+            pairs = generate_od_pairs(graph, marking, od_number, min_distance=od_distance)
         executor = TestExecutor(graph, marking, tested_strategies, pairs)
 
-        results = executor.execute(show_strategy=True, show_planned=True, display=False,
-                                   save=True)
+        results = executor.execute(show_strategy=True, show_planned=True, show_executed=True, display=display,
+                                   save=save)
 
         output_to_csv(results, graph_path=g, path="raw_results.csv")
