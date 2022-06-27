@@ -79,10 +79,16 @@ if __name__ == '__main__':
             b = arg
         elif opt in ['-h', "--help"]:
             print("Usage:")
-            print("-g path to txt file with graph (required)")
-            print("-d direction of possible disturbances (default - ubrl [means up, "
+            print("-g, --graph: path to txt file with graph (required)")
+            print("-d, --direction: direction of possible disturbances (default - ubrl [means up, "
                   "bottom, right, left])")
-            print("-f minima and maximal force of possible disturbances (default 1-1)")
+            print("-f, --force: minima and maximal force of possible disturbances (default 1-1)")
+            print("-n, --count: count of random origin/destination pairs to test (default 5)")
+            print("-l, --length: minimal manhattan distance of every origin/destination pair (default 10)")
+            print("-a, --origin: origin of a pair to test (format Y:X, has preference over -n and -l)")
+            print("-b, --destination: destination of a pair to test (format Y:X, has preference over -n and -l)")
+            print("-s, --save: specify this option to save graphical output to ./output folder)")
+            print("-d, --display: specify this option to display graphical output on a screen")
             sys.exit(0)
 
     if not graph_path:
@@ -119,10 +125,10 @@ if __name__ == '__main__':
 
         tested_strategies = [
             ShortestPathStrategy(graph, marking),
-            CombinedPathStrategy(graph, marking, 1, 6, lambda x : 1/x, "1:x"),
+            CombinedPathStrategy(graph, marking, 1, 6, lambda x: 1 / x, "1:x"),
             # CombinedPathStrategy(graph, marking, 1, 1, lambda x : sinus(x), "sin"),
             DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking)),
-            #DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, 7)),
+            # DynamicProgrammingStrategy(graph, marking, VectorSafetyMetric(marking, 7)),
             # DynamicProgrammingStrategy(graph, marking, SafestPathMetricV1(marking)),
             # DynamicProgrammingStrategy(graph, marking, SafestPathMetricV2(marking)),
         ]
